@@ -7,8 +7,13 @@ Generally I really like GLFW, although it has no default audio support like SDL 
 
 At the moment this is a direct port of the original Snowball game, but the plan would be to radically improve upon the old version.
 
-Anyway at the moment it just looks a little beter with MSAA:
-![snowball2 screen capture](screenshot.png)
+Anyway at the moment it just looks a little beter with 16x MSAA:
+![snowball2 screen capture 16x msaa](screenshot.png)
+
+VS no MSAA:
+![snowball screen capture no msaa](https://dashboard.snapcraft.io/site_media/appmedia/2021/09/Screenshot_2021-09-26_11-15-10.png)
+
+The original Snowball.mobi never had MSAA because it was designed to be a OpenGL ES / WebGL game and MSAA is not technically supported, or a great idea to be using on low end devices. The idea of porting Snowball to GLFW is to take advantage of all the features OpenGL has to offer.
 
 ## TODO
 - GL Menu System
