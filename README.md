@@ -5,7 +5,7 @@ This is probably going to be a slow progress project as it's not a priority or a
 
 Generally I really like GLFW, although it has no default audio support like SDL has, GLFW feels like a better portable framework to be using for OpenGL. Also, audio support in SDL2 probably wont be as good as utilising [PortAudio](http://www.portaudio.com/).
 
-At the moment this is a direct port of the original Snowball game, but the plan would be to radically improve upon the old version.
+At the moment this is a direct port of the original Snowball game, but the plan would be to radically improve upon the SDL2 GLES version.
 
 GLFW 16x MSAA | SDL2 GLES NO MSAA
 :-------------------------:|:-------------------------:
