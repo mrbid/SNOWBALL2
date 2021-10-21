@@ -19,3 +19,9 @@ The original Snowball.mobi never had MSAA because it was designed to be a OpenGL
 - Particle effects
 - Smoother rotation transitions
 - Better timings, use polynomial for snowball rotation speed possibly.
+
+## Prerequisites
+`sudo apt install libglfw3 libglfw3-dev`
+
+## Linux Binary
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball
