@@ -7,6 +7,9 @@ Generally I really like GLFW, although it has no default audio support like SDL 
 
 At the moment this is a direct port of the original Snowball game, but the plan would be to radically improve upon the old version.
 
+Anyway at the moment it just looks a little beter with MSAA:
+![snowball2 screen capture](screenshot.png)
+
 ## TODO
 - GL Menu System
 - Audo system
