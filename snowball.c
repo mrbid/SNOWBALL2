@@ -91,8 +91,6 @@ GLint opacity_id;
 GLint normal_id;
 GLint type_id;
 
-GLuint shaderProgram;
-
 GLuint bindstate = 0;
 GLuint bindstate2 = 0; //Just for rTree() color array change
 //It's unlikely there's going to be many color state changes
