@@ -145,7 +145,7 @@ uint seed = 1337;
 double score = 0.f;
 GLfloat drag = 0.0023f;
 GLfloat maxspeed = 0.f;
-time_t start = 0;
+GLfloat start = 0;
 uint psw = 0;
 ESVector pp;
 GLfloat pscale = 1.0f;
@@ -304,7 +304,7 @@ void resetGame(char sf)
         level++;
         
         char title[256];
-        sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60000.0, (score / sqrt(((double)(t-start))/1000.0))*100);
+        sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
         glfwSetWindowTitle(window, title);
     }
 
@@ -972,7 +972,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
         case GLFW_KEY_SPACE:
         {
-            glfwSetTime(0.0);
+            char title[256];
+            sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+            glfwSetWindowTitle(window, title);
         }
         break;
 
