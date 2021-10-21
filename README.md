@@ -30,4 +30,4 @@ For anyone confused by that terminology ([ref](https://www.merriam-webster.com/w
 `sudo apt install libglfw3 libglfw3-dev`
 
 ## Linux Binary
-https://github.com/mrbid/SNOWBALL2/raw/main/snowball
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
