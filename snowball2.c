@@ -1133,7 +1133,7 @@ int main(int argc, char** argv)
     if(noborder == 1)
     {
         glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-        zoom = -26.0f;
+        zoom = -28.0f;
     }
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
