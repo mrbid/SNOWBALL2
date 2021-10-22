@@ -300,7 +300,7 @@ void resetGame(char sf)
         }
 
         hrt = t+1.6f;
-        msca += 1.0f;
+        msca += 0.33f;
         level++;
         
         char title[256];
@@ -526,7 +526,9 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
     static GLfloat rot = 0;
 
     // rotation
-    rot += (-1000.f * dt)*vDist(lpp, pp);
+    float sscale = scale*100.f;
+    if(sscale > 900.f){sscale = 900.f;}
+    rot += (-(1000.f-sscale) * dt)*vDist(lpp, pp);
 
     // speed drag
     ps -= drag*dt;
@@ -1038,6 +1040,8 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             char title[256];
             sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
             glfwSetWindowTitle(window, title);
+            // pscale += 1.f;
+            // msca = pscale;
         }
         break;
 
