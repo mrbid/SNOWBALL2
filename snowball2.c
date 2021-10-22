@@ -1002,7 +1002,7 @@ if(t < inrot)
 if(t < hrt)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
-    rHeart((hrt-t)*0.3);
+    rHeart((hrt-t)*0.3f);
 }
 
 //*************************************
