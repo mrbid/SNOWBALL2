@@ -1130,6 +1130,7 @@ int main(int argc, char** argv)
     }
     const GLFWvidmode* desktop = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(window, ((desktop->width-sx)/2)-(winw/2), ((desktop->height-sy)/2)-(winh/2));
+    setBaseSensitivity(); // important
     if(noborder == 1)
     {
         glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
@@ -1154,9 +1155,6 @@ int main(int argc, char** argv)
         ipd = (unsigned char*)&icon_image2.pixel_data;
     GLFWimage icon = {16, 16, ipd};
     glfwSetWindowIcon(window, 1, &icon);
-
-    // scale mouse sensitivity
-    setBaseSensitivity();
 
     // seed random
     srand(seed);
