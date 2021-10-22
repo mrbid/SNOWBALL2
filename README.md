@@ -18,6 +18,7 @@ Launching as `./snowball2 1024 1024 0.3 1337 1` is pretty cool.
 ## ADDED
 - MSAA
 - Joystick Support
+- Window/Borderless mode
 
 ## TODO
 - GL Menu System
