@@ -526,7 +526,7 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
     static GLfloat rot = 0;
 
     // rotation
-    rot += (-400.4f*vDist(lpp, pp)) * dt;
+    rot += (-1000.f * dt)*vDist(lpp, pp);
 
     // speed drag
     ps -= drag*dt;
@@ -713,14 +713,14 @@ void rHeart(const GLfloat opacity)
 
 void setBaseSensitivity()
 {
-    if(zoom == -20.0f)
+    if(zoom == -16.0f)
         sens = 0.1f*sens_mul;
-    else if(zoom == -16.0f)
-        sens = 0.3f*sens_mul;
+    else if(zoom == -20.0)
+        sens = 0.2f*sens_mul;
     else if(zoom == -26.0f)
-        sens = 0.2f*sens_mul;
-    else if(zoom == -27.0)
-        sens = 0.2f*sens_mul;
+        sens = 0.3f*sens_mul;
+    else if(zoom == -27.0f)
+        sens = 0.3f*sens_mul;
 }
 
 //*************************************
@@ -748,6 +748,69 @@ void main_loop()
     double xd = (sx-x);
     double yd = (sy-y);
     //printf("%f %f | %f %f | %f %f\n", x, y, sx, sy, xd, yd);
+
+    if(glfwJoystickPresent(GLFW_JOYSTICK_1) == 1)
+    {
+        int count;
+        const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+        if(count >= 2)
+        {
+            xd = -axes[0]*50.f*sens;
+            yd = -axes[1]*50.f*sens;
+            //printf("%f %f\n", axes[0], axes[1]);
+        }
+
+        static float bt = 0;
+        if(t > bt)
+        {
+            const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+            if(count >= 3)
+            {
+                if(buttons[0] == GLFW_PRESS)
+                {
+                    sens_mul -= 0.03f;
+                    setBaseSensitivity();
+                    printf("Sens: %.3f\n", sens_mul);
+                    bt = t + 0.3f;
+                }
+                else if(buttons[1] == GLFW_PRESS)
+                {
+                    sens_mul += 0.03f;
+                    setBaseSensitivity();
+                    printf("Sens: %.3f\n", sens_mul);
+                    bt = t + 0.3f;
+                }
+                else if(buttons[2] == GLFW_PRESS)
+                {
+                    if(zoom == -20.0f)
+                    {
+                        zoom = -16.0f;
+                        setBaseSensitivity();
+                        sport = 0;
+                    }
+                    else if(zoom == -16.0f)
+                    {
+                        zoom = -26.0f;
+                        setBaseSensitivity();
+                        sport = 0;
+                    }
+                    else if(zoom == -26.0f)
+                    {
+                        zoom = -27.0f;
+                        setBaseSensitivity();
+                        sport = 1;
+                    }
+                    else if(zoom == -27.0)
+                    {
+                        zoom = -20.0f;
+                        setBaseSensitivity();
+                        sport = 0;
+                    }
+                    bt = t + 0.3f;
+                }
+            }
+        }
+    }
 
     xrot += xd*sens;
     yrot += yd*sens;
@@ -1028,25 +1091,25 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         if(zoom == -20.0f)
         {
             zoom = -16.0f;
-            sens = 0.1f*sens_mul;
+            setBaseSensitivity();
             sport = 0;
         }
         else if(zoom == -16.0f)
         {
             zoom = -26.0f;
-            sens = 0.3f*sens_mul;
+            setBaseSensitivity();
             sport = 0;
         }
         else if(zoom == -26.0f)
         {
             zoom = -27.0f;
-            sens = 0.2f*sens_mul;
+            setBaseSensitivity();
             sport = 1;
         }
         else if(zoom == -27.0)
         {
             zoom = -20.0f;
-            sens = 0.2f*sens_mul;
+            setBaseSensitivity();
             sport = 0;
         }
     }
