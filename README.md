@@ -13,7 +13,7 @@ GLFW 16x MSAA | SDL2 GLES NO MSAA
 
 The original Snowball.mobi never had MSAA because it was designed to be a OpenGL ES / WebGL game and MSAA is not technically supported, or a great idea to be using on low end devices. The idea of porting Snowball to GLFW is to take advantage of all the features OpenGL has to offer.
 
-Launching as `./snowball2 1024 1024 0.4 1337 1` is pretty cool.
+Launching as `./snowball2 1024 1024 0.3 1337 1` is pretty cool.
 
 ## TODO
 - GL Menu System
