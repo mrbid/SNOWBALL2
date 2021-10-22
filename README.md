@@ -15,12 +15,15 @@ The original Snowball.mobi never had MSAA because it was designed to be a OpenGL
 
 Launching as `./snowball2 1024 1024 0.3 1337 1` is pretty cool.
 
+## ADDED
+- MSAA
+- Joystick Support
+
 ## TODO
 - GL Menu System
 - Audo system
 - Particle effects
 - Smoother rotation transitions
-- Better timings, use polynomial for snowball rotation speed possibly.
 - Depreciate esAux for vec/mat or linmath.
 
 The shader program... Well this time I am going to make one shader program which executes all four of the shading modes that I make use of. Why? Well if this article is anything to go by _(which I hope it is)_ [GPU inner workings](https://vksegfault.github.io/posts/gentle-intro-gpu-inner-workings/) then technically these if statement switches would be inter-subgroup branching and not intra-subgroup branching which means that when all threads execute they will all be executing the same branches/pathways. In the past my belief was that no branching in shaders should be performed if possible, and I am sure there is still truth to this statement but Snowball is not Crysis and inter-subgroup branching is probably going to be just fine. Also I would imagine inter-subgroup branching would be more performant than state changes for the shader program.
