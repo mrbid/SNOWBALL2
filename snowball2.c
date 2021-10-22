@@ -1073,6 +1073,29 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 //*************************************
 int main(int argc, char** argv)
 {
+    // you can specify your own window size on execution
+    uint noborder = 0;
+    if(argc >= 3)
+    {
+        winw = atoi(argv[1]);
+        winh = atoi(argv[2]);
+    }
+    // and input sensitivity (invert the mouse with -1.0)
+    if(argc >= 4)
+    {
+        sens_mul = atof(argv[3]);
+    }
+    // and random seed
+    if(argc >= 5)
+    {
+        seed = atof(argv[4]);
+    }
+    // and the really cool part (noborder!)
+    if(argc == 6)
+    {
+        noborder = atoi(argv[5]);
+    }
+
     // help
     printf("Snowball by James William Fletcher (james@voxdsp.com)\n");
     printf("A novel speed run game akin to a platform loop/buzz wire game.\n\n");
@@ -1082,7 +1105,7 @@ int main(int argc, char** argv)
     printf("Mouse X1        = Decrease mouse speed\n");
     printf("Mouse X2        = Increase mouse speed\n\n");
     printf("COMMAND LINE:\n");
-    printf("./snowball <width> <height> <mouse sensitivity> <random seed>\n\n");
+    printf("./snowball <width> <height> <mouse sensitivity> <random seed> <noborder>\n\n");
     printf("Specify a mouse sensitivity of -x such as -1.0 to invert the mouse.\n\n");
     printf("A web version of the game: http://snowball.mobi\n\n");
     printf("HOW TO:\n");
@@ -1093,9 +1116,12 @@ int main(int argc, char** argv)
     printf("Your score is updated in the program title bar at the end of each level.\n\n");
 
     if(!glfwInit()){exit(EXIT_FAILURE);}
-    glfwWindowHint(GLFW_SAMPLES, 16);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    if(noborder == 1)
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+    else
+        glfwWindowHint(GLFW_SAMPLES, 16);
     window = glfwCreateWindow(winw, winh, "Snowball.mobi", NULL, NULL);
     if(!window)
     {
@@ -1104,6 +1130,11 @@ int main(int argc, char** argv)
     }
     const GLFWvidmode* desktop = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(window, ((desktop->width-sx)/2)-(winw/2), ((desktop->height-sy)/2)-(winh/2));
+    if(noborder == 1)
+    {
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+        zoom = -26.0f;
+    }
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
@@ -1123,23 +1154,6 @@ int main(int argc, char** argv)
         ipd = (unsigned char*)&icon_image2.pixel_data;
     GLFWimage icon = {16, 16, ipd};
     glfwSetWindowIcon(window, 1, &icon);
-
-    // you can specify your own window size on execution
-    if(argc >= 3)
-    {
-        winw = atoi(argv[1]);
-        winh = atoi(argv[2]);
-    }
-    // and input sensitivity (invert the mouse with -1.0)
-    else if(argc >= 4)
-    {
-        sens_mul = atof(argv[3]);
-    }
-    // and random seed
-    else if(argc == 5)
-    {
-        seed = atof(argv[4]);
-    }
 
     // scale mouse sensitivity
     setBaseSensitivity();
@@ -1267,7 +1281,7 @@ int main(int argc, char** argv)
     //glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 
 //*************************************
 // execute update / render loop
