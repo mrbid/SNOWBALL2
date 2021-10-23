@@ -18,7 +18,16 @@ Launching as `./snowball2 1024 1024 0.3 1337 1` is pretty cool. ([video](https:/
 ## ADDED
 - MSAA
 - Joystick Support
+- Dual Joystick Support
 - Window/Borderless mode
+
+## Joysticks
+By default the game will boot in single joystick mode, this means the first joystick it detects is utilized.
+
+When using joystick mode, the input/mouse sensitivity becomes a master input sensitvity. You can also fine tune the sensitivity of both Joystick 1 & 2. I personally like to have Joy 1 as a slower fine control and Joy 2 as a double speed reflex control. If you have both set to the same sensitivity when they are both engaged you will get double the speed.
+
+This is how I personally like to launch my config, MasterSensitvity: 0.3, DoubleJoysticks: 1, Joy1: 1.0, Joy2: 2.0 
+`./snowball2 1024 768 0.3 1337 0 1 1.0 2.0`
 
 ## TODO
 - GL Menu System
