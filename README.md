@@ -33,8 +33,8 @@ This is how I personally like to launch my config but it really depends on the c
 
 `JoyPad Button1`: reduce master sensitvity<br>
 `JoyPad Button2`: increase master sensitvity<br>
-`JoyPad Button3`: change view
-`JoyPad Button10 (LT)`: change view
+`JoyPad Button3`: change view<br>
+`JoyPad Button10 (LT)`: change view<br>
 `JoyPad Button11 (RT)`: change view
 
 When a joystick is connected to the computer the mouse is disabled, the joystick takes priority, but hotswapping is allowed, so just unplug from the USB port to get the mouse back.
