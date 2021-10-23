@@ -73,13 +73,19 @@
 GLFWwindow* window;
 uint winw = 1024; //1920
 uint winh = 768;  //1080
-GLfloat t = 0;
+double t = 0;
 GLfloat aspect;
 GLfloat sens = 0.3f;
 GLfloat sens_mul = 0.2f;
 
+// mouse input
 double x=0, y=0, sx=0, sy=0;
-uint md = 0; // mouse input
+uint md = 0;
+
+// joystick input
+uint doublestick = 0;
+GLfloat ss1 = 1.f;
+GLfloat ss2 = 1.f;
 
 GLint projection_id;
 GLint modelview_id;
@@ -122,9 +128,9 @@ ESModel mdlSad;
     GLfloat sfa = 0.0f;
     GLfloat sfs = 0.0f;
 ESModel mdlIntro;
-    GLfloat inrot = 0;
+    double inrot = 0;
 ESModel mdlHeart;
-    GLfloat hrt = 0;
+    double hrt = 0;
 ESModel mdlTele;
 
 #define max_tree 768
@@ -137,7 +143,7 @@ uint sp[max_snow];
 #define max_gold 128
 uint gp[max_gold];
 
-GLfloat sround = 0;
+double sround = 0;
 uint level = 0;
 uint sport = 0;
 uint rounds = 33;
@@ -277,7 +283,7 @@ void resetGame(char sf)
     }
     else if(sf == 0)
     {
-        inrot = t+3.3f;
+        inrot = t+3.3;
     }
     else if(sf == 2)
     {
@@ -299,7 +305,7 @@ void resetGame(char sf)
             }
         }
 
-        hrt = t+1.6f;
+        hrt = t+1.6;
         msca += 0.33f;
         level++;
         
@@ -308,7 +314,7 @@ void resetGame(char sf)
         glfwSetWindowTitle(window, title);
     }
 
-    sround = t + 6.f; //Immune from tree's in the first 6 seconds of a round starting
+    sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
 }
 
 
@@ -733,11 +739,11 @@ void main_loop()
 //*************************************
 // time delta for interpolation
 //*************************************
-    static GLfloat lt = 0;
-    GLfloat deltaTime = (t-lt)*30.0f;
+    static double lt = 0;
+    double deltaTime = (t-lt)*30.0;
     //printf("%f\n", deltaTime);
-    if(deltaTime > 1.0f)
-        deltaTime = 1.0f;
+    if(deltaTime > 1.0)
+        deltaTime = 1.0;
     lt = t;
 
 //*************************************
@@ -755,11 +761,17 @@ void main_loop()
     {
         int count;
         const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
-        if(count >= 2)
+        if(count >= 2) // && fabs(axes[0]) > 0.00001f && fabs(axes[1]) > 0.00001f
         {
-            xd = -axes[0]*50.f*sens;
-            yd = -axes[1]*50.f*sens;
+            xd = -axes[0]*50.f*ss1*sens;
+            yd = -axes[1]*50.f*ss1*sens;
             //printf("%f %f\n", axes[0], axes[1]);
+        }
+        if(doublestick == 1)
+        {
+            xd += -axes[3]*50.f*ss2*sens;
+            yd += -axes[4]*50.f*ss2*sens;
+            //printf("%f %f\n", axes[3], axes[4]);
         }
 
         static float bt = 0;
@@ -782,7 +794,7 @@ void main_loop()
                     printf("Sens: %.3f\n", sens_mul);
                     bt = t + 0.3f;
                 }
-                else if(buttons[2] == GLFW_PRESS)
+                else if(buttons[2] == GLFW_PRESS || buttons[9] == GLFW_PRESS || buttons[10] == GLFW_PRESS)
                 {
                     if(zoom == -20.0f)
                     {
@@ -997,12 +1009,12 @@ if(sfs != 0)
 if(t < inrot)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
-    rIntro((inrot-t)*0.3f);
+    rIntro((inrot-t)*0.3);
 }
 if(t < hrt)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
-    rHeart((hrt-t)*0.3f);
+    rHeart((hrt-t)*0.3);
 }
 
 //*************************************
@@ -1140,6 +1152,8 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 //*************************************
 int main(int argc, char** argv)
 {
+    // should I be using getopt? I prefer this.
+
     // you can specify your own window size on execution
     uint noborder = 0;
     if(argc >= 3)
@@ -1158,9 +1172,24 @@ int main(int argc, char** argv)
         seed = atof(argv[4]);
     }
     // and the really cool part (noborder!)
-    if(argc == 6)
+    if(argc >= 6)
     {
         noborder = atoi(argv[5]);
+    }
+    // dual joystick support
+    if(argc >= 7)
+    {
+        doublestick = atoi(argv[6]);
+    }
+    // joystick 1 sensitvity
+    if(argc >= 8)
+    {
+        ss1 = atof(argv[7]);
+    }
+    // joystick 2 sensitvity
+    if(argc >= 9)
+    {
+        ss2 = atof(argv[8]);
     }
 
     // help
@@ -1172,7 +1201,7 @@ int main(int argc, char** argv)
     printf("Mouse X1        = Decrease mouse speed\n");
     printf("Mouse X2        = Increase mouse speed\n\n");
     printf("COMMAND LINE:\n");
-    printf("./snowball <width> <height> <mouse sensitivity> <random seed> <noborder>\n\n");
+    printf("./snowball <width> <height> <master input/mouse sensitivity> <random seed> <noborder> <double joy stick> <joy 1 sensitivity> <joy 2 sensitivity>\n\n");
     printf("Specify a mouse sensitivity of -x such as -1.0 to invert the mouse.\n\n");
     printf("A web version of the game: http://snowball.mobi\n\n");
     printf("HOW TO:\n");
@@ -1357,7 +1386,7 @@ int main(int argc, char** argv)
     resetGame(0);
 
     // event loop
-    uint lt = glfwGetTime() + 16, fc = 0;
+    double lt = glfwGetTime() + 16, fc = 0;
     while(!glfwWindowShouldClose(window))
     {
         t = glfwGetTime();
@@ -1369,7 +1398,7 @@ int main(int argc, char** argv)
         fc++;
         if(t > lt)
         {
-            printf("FPS: %u\n", fc/16);
+            printf("FPS: %.0f\n", fc/16);
             fc = 0;
             lt = t + 16;
         }
