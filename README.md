@@ -22,7 +22,9 @@ Launching as `./snowball2 1024 1024 0.3 1337 1` is pretty cool. ([video](https:/
 - Window/Borderless mode
 
 ## Joysticks
-By default the game will boot in single joystick mode, this means the first joystick it detects is utilized.
+By default the game will boot in single joystick mode, although you can enable double joystick mode via the command line.
+
+The mappings are designed for an Xbox 360 gamepad.
 
 When using joystick mode, the input/mouse sensitivity becomes a master input sensitvity. You can also fine tune the sensitivity of both Joystick 1 & 2. I personally like to have Joy 1 as a slower fine control and Joy 2 as a double speed reflex control. If you have both set to the same sensitivity when they are both engaged you will get double the speed.
 
@@ -32,6 +34,8 @@ This is how I personally like to launch my config but it really depends on the c
 `JoyPad Button1`: reduce master sensitvity<br>
 `JoyPad Button2`: increase master sensitvity<br>
 `JoyPad Button3`: change view
+`JoyPad Button10 (LT)`: change view
+`JoyPad Button11 (RT)`: change view
 
 When a joystick is connected to the computer the mouse is disabled, the joystick takes priority, but hotswapping is allowed, so just unplug from the USB port to get the mouse back.
 
