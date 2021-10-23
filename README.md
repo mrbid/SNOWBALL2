@@ -29,6 +29,8 @@ When using joystick mode, the input/mouse sensitivity becomes a master input sen
 This is how I personally like to launch my config, MasterSensitvity: 0.3, DoubleJoysticks: 1, Joy1: 1.0, Joy2: 2.0:<br>
 `./snowball2 1024 768 0.3 1337 0 1 1.0 2.0`
 
+When a joystick is connected to the computer the mouse is disabled, the joystick takes priority, but hotswapping is allowed, so just unplug from the USB port to get the mouse back.
+
 ## TODO
 - GL Menu System
 - Audo system
