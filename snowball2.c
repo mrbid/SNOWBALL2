@@ -1382,7 +1382,6 @@ int main(int argc, char** argv)
     while(!glfwWindowShouldClose(window))
     {
         t = glfwGetTime();
-        //printf("%f\n", t);
 
         glfwPollEvents();
         main_loop();
