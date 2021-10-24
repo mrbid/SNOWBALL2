@@ -77,15 +77,19 @@ double t = 0;
 GLfloat aspect;
 GLfloat sens = 0.3f;
 GLfloat sens_mul = 0.2f;
+GLfloat uw, uh; // normalised pixel dpi
 
 // mouse input
 double x=0, y=0, sx=0, sy=0;
 uint md = 0;
 
+// ui
+uint show_ui = 0;
+
 // joystick input
 uint doublestick = 0;
 GLfloat ss1 = 1.f;
-GLfloat ss2 = 1.f;
+GLfloat ss2 = 1.5f;
 
 GLint projection_id;
 GLint modelview_id;
@@ -96,6 +100,8 @@ GLint color_id;
 GLint opacity_id;
 GLint normal_id;
 GLint type_id;
+GLint texcoord_id;
+GLint sampler_id;
 
 GLuint bindstate = 0;
 GLuint bindstate2 = 0; //Just for rTree() color array change
@@ -107,6 +113,8 @@ GLuint bindstate2 = 0; //Just for rTree() color array change
 // Hindsight says, I could have reduced state changes more
 // but not significantly so, aka this is negligible.
 
+GLuint tex_menu;
+
 ESMatrix projection;
 ESMatrix view;
 ESMatrix model;
@@ -117,6 +125,7 @@ GLfloat xrot = 0.f;
 GLfloat yrot = 0.f;
 GLfloat zoom = -20.0f;
 
+ESModel mdlPlane;
 ESModel mdlGrid;
 ESModel mdlSphere;
 ESModel mdlTree;
@@ -534,7 +543,9 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
     // rotation
     float sscale = scale*100.f;
     if(sscale > 900.f){sscale = 900.f;}
-    rot += (-(1000.f-sscale) * dt)*vDist(lpp, pp);
+    const float rd = (-(1000.f-sscale)*vDist(lpp, pp)) * dt;
+    rot += rd;
+    //printf("%f %f\n", rd, dt);
 
     // speed drag
     ps -= drag*dt;
@@ -740,7 +751,7 @@ void main_loop()
 // time delta for interpolation
 //*************************************
     static double lt = 0;
-    double deltaTime = (t-lt)*30.0;
+    double deltaTime = (t-lt)*15.0;
     //printf("%f\n", deltaTime);
     if(deltaTime > 1.0)
         deltaTime = 1.0;
@@ -1006,16 +1017,46 @@ if(sfs != 0)
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
     rSad(deltaTime);
 }
-if(t < inrot)
+else if(t < inrot)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
     rIntro((inrot-t)*0.3);
 }
-if(t < hrt)
+else if(t < hrt)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
     rHeart((hrt-t)*0.3);
 }
+
+//*************************************
+// Draw UI
+//*************************************
+    if(show_ui == 1)
+    {
+        shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+
+        esMatrixLoadIdentity(&modelview);
+        esTranslate(&modelview, 0.f, 0.f, -1.730f);
+        esScale(&modelview, uw*370.f, uh*271.f, 0);
+
+        glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*)&projection.m[0][0]);
+        glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*)&modelview.m[0][0]);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mdlPlane.tid);
+        glVertexAttribPointer(texcoord_id, 2, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(texcoord_id);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex_menu);
+        glUniform1i(sampler_id, 0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, mdlPlane.vid);
+        glVertexAttribPointer(position_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(position_id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlPlane.iid);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    }
 
 //*************************************
 // swap buffers / display render
@@ -1025,41 +1066,79 @@ if(t < hrt)
 }
 
 //*************************************
-// Helper Funcs
-//*************************************
-void esBindModel(ESModel* model, const GLfloat* vertices, const GLsizei vertlen, const GLushort* indices, const GLsizei indlen)
-{
-    glGenBuffers(1, &model->vid);
-    glBindBuffer(GL_ARRAY_BUFFER, model->vid);
-    glBufferData(GL_ARRAY_BUFFER, vertlen * sizeof(GLfloat) * 3, vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &model->iid);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->iid);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indlen * sizeof(GLushort), indices, GL_STATIC_DRAW);
-}
-
-//*************************************
 // Input Handelling
 //*************************************
+uint cycle_window = 0;
+void setBorderMode(uint state)
+{
+    if(state == 1)
+    {
+        glfwWindowHint(GLFW_SAMPLES, 0);
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+        zoom = -28.0f;
+        cycle_window = 1;
+    }
+    else
+    {
+        glfwWindowHint(GLFW_SAMPLES, 16);
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 0);
+        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+        zoom = -20.0f;
+        if(aspect < 1.0f)
+            zoom = -26.0f;
+        cycle_window = 1;
+    }
+}
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if(action != GLFW_PRESS){return;}
 
     switch(key)
     {
-        case GLFW_KEY_SPACE:
-        {
-            char title[256];
-            sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
-            glfwSetWindowTitle(window, title);
-            // pscale += 1.f;
-            // msca = pscale;
-        }
-        break;
+        // case GLFW_KEY_SPACE:
+        // {
+        //     // char title[256];
+        //     // sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+        //     // glfwSetWindowTitle(window, title);
+        //     // pscale += 1.f;
+        //     // msca = pscale;
+        //     static uint nb = 1;
+        //     setBorderMode(nb);
+        //     nb = 1 - nb;
+        // }
+        // break;
 
         case GLFW_KEY_ESCAPE:
         {
             glfwSetWindowShouldClose(window, GLFW_TRUE);
+        }
+        break;
+
+        default:
+        {
+            show_ui = 1 - show_ui;
+
+            static uint sv = 0;
+            if(show_ui == 1)
+            {
+                sv = md;
+                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                sx = x, sy = y;
+                md = 0;
+            }
+            else
+            {
+                if(sv == 1)
+                {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                    x = winw/2, y = winh/2;
+                    glfwSetCursorPos(window, x, y);
+                    sx = x, sy = y;
+                    md = 1;
+                }
+            }
         }
         break;
     }
@@ -1069,7 +1148,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if(button == GLFW_MOUSE_BUTTON_LEFT)
     {
-        if(action == GLFW_PRESS)
+        if(action == GLFW_PRESS && show_ui == 0)
         {
             if(md == 0)
             {
@@ -1142,6 +1221,8 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 
     glViewport(0, 0, winw, winh);
     aspect = (GLfloat)winw / (GLfloat)winh;
+    uw = aspect / (GLfloat)winw;
+    uh = 1.f / (GLfloat)winh;
 
     esMatrixLoadIdentity(&projection);
     esPerspective(&projection, 60.0f, aspect, 1.0f, 60.0f); 
@@ -1152,45 +1233,16 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 //*************************************
 int main(int argc, char** argv)
 {
-    // should I be using getopt? I prefer this.
-
-    // you can specify your own window size on execution
-    uint noborder = 0;
-    if(argc >= 3)
-    {
-        winw = atoi(argv[1]);
-        winh = atoi(argv[2]);
-    }
-    // and input sensitivity (invert the mouse with -1.0)
-    if(argc >= 4)
-    {
-        sens_mul = atof(argv[3]);
-    }
-    // and random seed
-    if(argc >= 5)
-    {
-        seed = atof(argv[4]);
-    }
-    // and the really cool part (noborder!)
-    if(argc >= 6)
-    {
-        noborder = atoi(argv[5]);
-    }
-    // dual joystick support
-    if(argc >= 7)
-    {
-        doublestick = atoi(argv[6]);
-    }
-    // joystick 1 sensitvity
-    if(argc >= 8)
-    {
-        ss1 = atof(argv[7]);
-    }
-    // joystick 2 sensitvity
-    if(argc >= 9)
-    {
-        ss2 = atof(argv[8]);
-    }
+    // should I be using getopt? I prefer this. Also this to be superseded by the UI.
+    uint noborder = 0, msaa = 16;
+    if(argc >= 2){seed = atof(argv[1]);}
+    if(argc >= 3){msaa = atoi(argv[2]);}
+    if(argc >= 4){noborder = atoi(argv[3]);}
+    if(argc >= 6){winw = atoi(argv[4]);winh = atoi(argv[5]);}
+    if(argc >= 7){sens_mul = atof(argv[6]);}
+    if(argc >= 8){doublestick = atoi(argv[7]);}
+    if(argc >= 9){ss1 = atof(argv[8]);}
+    if(argc >= 10){ss2 = atof(argv[9]);}
 
     // help
     printf("Snowball by James William Fletcher (james@voxdsp.com)\n");
@@ -1201,7 +1253,7 @@ int main(int argc, char** argv)
     printf("Mouse X1        = Decrease mouse speed\n");
     printf("Mouse X2        = Increase mouse speed\n\n");
     printf("COMMAND LINE:\n");
-    printf("./snowball <width> <height> <master input/mouse sensitivity> <random seed> <noborder> <double joy stick> <joy 1 sensitivity> <joy 2 sensitivity>\n\n");
+    printf("./snowball <random seed> <msaa 0-16> <noborder 0-1> <width> <height> <master input/mouse sensitivity> <double joy stick> <joy 1 sensitivity> <joy 2 sensitivity>\n\n");
     printf("Specify a mouse sensitivity of -x such as -1.0 to invert the mouse.\n\n");
     printf("A web version of the game: http://snowball.mobi\n\n");
     printf("HOW TO:\n");
@@ -1211,13 +1263,25 @@ int main(int argc, char** argv)
     printf("Try not to hit the trees as they will slow you down and reduce the mass of your snowball, unless your snowball is large enough to consume them, then they slow you down but also add to the mass of your snowball. Trees will shrink slightly as you approach them to show that they can be consumed.\n\n");
     printf("Your score is updated in the program title bar at the end of each level.\n\n");
 
+    // settings
+    printf("Argv Settings:\n");
+    printf("SEED: %u\n", seed);
+    printf("MSAA: %u\n", msaa);
+    printf("NoBorder: %u\n", noborder);
+    printf("Resolution: %ux%u\n", winw, winh);
+    printf("Master Sensitivity: %.3f\n", sens_mul);
+    printf("DoubleStick: %u\n", doublestick);
+    printf("SS1: %.3f\n", ss1);
+    printf("SS2: %.3f\n\n", ss2);
+
+    // init glfw
     if(!glfwInit()){exit(EXIT_FAILURE);}
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     if(noborder == 1)
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
     else
-        glfwWindowHint(GLFW_SAMPLES, 16);
+        glfwWindowHint(GLFW_SAMPLES, msaa);
     window = glfwCreateWindow(winw, winh, "Snowball.mobi", NULL, NULL);
     if(!window)
     {
@@ -1225,7 +1289,7 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
     const GLFWvidmode* desktop = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    glfwSetWindowPos(window, ((desktop->width-sx)/2)-(winw/2), ((desktop->height-sy)/2)-(winh/2));
+    glfwSetWindowPos(window, ((desktop->width-sx)/2)-(winw/2), ((desktop->height-sy)/2)-(winh/2)); // center window on desktop
     setBaseSensitivity(); // important
     if(noborder == 1)
     {
@@ -1243,14 +1307,10 @@ int main(int argc, char** argv)
     // set random icon
     unsigned char* ipd = (unsigned char*)&icon_image2.pixel_data;
     const uint r = qRandSeed(time(0), 0, 2);
-    if(r == 0)
-        ipd = (unsigned char*)&icon_image.pixel_data;
-    else if(r == 1)
-        ipd = (unsigned char*)&icon_image1.pixel_data;
-    else
-        ipd = (unsigned char*)&icon_image2.pixel_data;
-    GLFWimage icon = {16, 16, ipd};
-    glfwSetWindowIcon(window, 1, &icon);
+    if(r == 0)      {ipd = (unsigned char*)&icon_image.pixel_data;}
+    else if(r == 1) {ipd = (unsigned char*)&icon_image1.pixel_data;}
+    else            {ipd = (unsigned char*)&icon_image2.pixel_data;}
+    glfwSetWindowIcon(window, 1, &(GLFWimage){16, 16, ipd});
 
     // seed random
     srand(seed);
@@ -1260,18 +1320,22 @@ int main(int argc, char** argv)
 // projection
 //*************************************
 
-    aspect = (GLfloat)winw / (GLfloat)winh;
-
+    window_size_callback(window, winw, winh);
     if(aspect < 1.0f)
         zoom = -26.0f;
-
-    esMatrixLoadIdentity(&projection);
-    esPerspective(&projection, 60.0f, aspect, 1.0f, 60.0f);
-
 
 //*************************************
 // bind vertex and index buffers
 //*************************************
+
+    // ***** BIND MENU PLANE *****
+    GLfloat  plane_vert[] = {1.000000,-1.000000,0.000000,-1.000000,1.000000,0.000000,-1.000000,-1.000000,0.000000,1.000000,1.000000,0.000000};
+    GLushort plane_indi[] = {0,1,2,0,3,1};
+    esBindModel(&mdlPlane, plane_vert, 9, plane_indi, 6);
+    // GLfloat plane_texc[] = {0.f,0.f, 0.f,1.f, 1.f,1.f, 1.f,0.f};
+    GLfloat plane_texc[] = {1.f,1.f, 0.f,0.f, 0.f,1.f, 1.f,0.f};
+    esBind(GL_ARRAY_BUFFER, &mdlPlane.tid, plane_texc, sizeof(plane_texc), GL_STATIC_DRAW);
+    tex_menu = esLoadTexture(menu_image.width, menu_image.height, &menu_image.pixel_data[0]);
 
     // ***** BIND ICOGRID *****
     esBindModel(&mdlGrid, icogrid_vertices, icogrid_numvert, icogrid_indices, icogrid_numind);
@@ -1286,76 +1350,29 @@ int main(int argc, char** argv)
     esBindModel(&mdlIntro, intro_vertices, intro_numvert, intro_indices, intro_numind);
 
     // ***** BIND TREE *****
-    glGenBuffers(1, &mdlTree.vid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTree.vid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tree_vertices), tree_vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTree.cid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTree.cid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tree_colors), tree_colors, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTree_iced);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTree_iced);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tree_iced_colors), tree_iced_colors, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTree.nid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTree.nid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tree_normals), tree_normals, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTree.iid);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlTree.iid);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(tree_indices), tree_indices, GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTree.vid, tree_vertices, sizeof(tree_vertices), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTree.cid, tree_colors, sizeof(tree_colors), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTree_iced, tree_iced_colors, sizeof(tree_iced_colors), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTree.nid, tree_normals, sizeof(tree_normals), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTree.iid, tree_indices, sizeof(tree_indices), GL_STATIC_DRAW);
 
     // ***** BIND POLE / OBELISK *****
-    glGenBuffers(1, &mdlTele.vid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTele.vid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tele_vertices), tele_vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTele.nid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTele.nid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tele_normals), tele_normals, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTele.cid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlTele.cid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tele_colors), tele_colors, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlTele.iid);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlTele.iid);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(tele_indices), tele_indices, GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTele.vid, tele_vertices, sizeof(tele_vertices), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTele.nid, tele_normals, sizeof(tele_normals), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTele.cid, tele_colors, sizeof(tele_colors), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlTele.iid, tele_indices, sizeof(tele_indices), GL_STATIC_DRAW);
 
     // ***** BIND TELE *****
-    glGenBuffers(1, &mdlCat.vid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlCat.vid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cat_vertices), cat_vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlCat.nid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlCat.nid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cat_normals), cat_normals, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlCat_aura);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlCat_aura);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cat_aura_colors), cat_aura_colors, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlCat.cid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlCat.cid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cat_colors), cat_colors, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlCat.iid);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlCat.iid);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cat_indices), cat_indices, GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlCat.vid, cat_vertices, sizeof(cat_vertices), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlCat.nid, cat_normals, sizeof(cat_normals), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlCat_aura, cat_aura_colors, sizeof(cat_aura_colors), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlCat.cid, cat_colors, sizeof(cat_colors), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlCat.iid, cat_indices, sizeof(cat_indices), GL_STATIC_DRAW);
 
     // ***** BIND SPHERE *****
-    glGenBuffers(1, &mdlSphere.vid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlSphere.vid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(icosmooth2_vertices), icosmooth2_vertices, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlSphere.nid);
-    glBindBuffer(GL_ARRAY_BUFFER, mdlSphere.nid);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(icosmooth2_normals), icosmooth2_normals, GL_STATIC_DRAW);
-
-    glGenBuffers(1, &mdlSphere.iid);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlSphere.iid);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(icosmooth2_indices), icosmooth2_indices, GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlSphere.vid, icosmooth2_vertices, sizeof(icosmooth2_vertices), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlSphere.nid, icosmooth2_normals, sizeof(icosmooth2_normals), GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &mdlSphere.iid, icosmooth2_indices, sizeof(icosmooth2_indices), GL_STATIC_DRAW);
 
 //*************************************
 // compile & link shader program
@@ -1366,6 +1383,7 @@ int main(int argc, char** argv)
     makeLambert1();
     makeLambert3();
     makeFullbright();
+    makeFullbrightT();
 
 //*************************************
 // configure render options
