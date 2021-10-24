@@ -41,7 +41,7 @@ When a joystick is connected to the computer the mouse is disabled, the joystick
 
 ## TODO
 - GL Menu System [WIP]
-- Audo system
+- Audio system
 - Particle effects
 
 The shader program... Well this time I am going to make one shader program which executes all four of the shading modes that I make use of. Why? Well if this article is anything to go by _(which I hope it is)_ [GPU inner workings](https://vksegfault.github.io/posts/gentle-intro-gpu-inner-workings/) then technically these if statement switches would be inter-subgroup branching and not intra-subgroup branching which means that when all threads execute they will all be executing the same branches/pathways. In the past my belief was that no branching in shaders should be performed if possible, and I am sure there is still truth to this statement but Snowball is not Crysis and inter-subgroup branching is probably going to be just fine. Also I would imagine inter-subgroup branching would be more performant than state changes for the shader program.
