@@ -25,6 +25,9 @@ void mMulV(vec *r, const mat *a, const vec v);
 void mScale(mat *r, const float x, const float y, const float z);
 void mTranslate(mat *r, const float x, const float y, const float z);
 void mRotate(mat *r, const float radians, float x, float y, float z);
+void mRotX(mat *r, const float radians);
+void mRotY(mat *r, const float radians);
+void mRotZ(mat *r, const float radians);
 void mFrustum(mat *r, const float left, const float right, const float bottom, const float top, const float nearZ, const float farZ);
 void mPerspective(mat *r, const float fovy, const float aspect, const float nearZ, const float farZ);
 void mOrtho(mat *r, const float left, const float right, const float bottom, const float top, const float nearZ, const float farZ);
@@ -193,6 +196,39 @@ void mRotate(mat *r, const float radians, float x, float y, float z)
 
         mMul(r, &rotMat, r);
     }
+}
+
+void mRotX(mat *r, const float radians)
+{
+    const float s = sinf(radians);
+    const float c = cosf(radians);
+    const mat t = { c, 0.f, s, 0.f,
+                    0.f, 1.f, 0.f, 0.f,
+                    -s, 0.f, c, 0.f,
+                    0.f, 0.f, 0.f, 1.f };
+    mMul(r, &t, r);
+}
+
+void mRotY(mat *r, const float radians)
+{
+    const float s = sinf(radians);
+    const float c = cosf(radians);
+    const mat t = { 1.f, 0.f, 0.f, 0.f,
+                    0.f, c, -s, 0.f,
+                    0.f, s, c, 0.f,
+                    0.f, 0.f, 0.f, 1.f };
+    mMul(r, &t, r);
+}
+
+void mRotZ(mat *r, const float radians)
+{
+    const float s = sinf(radians);
+    const float c = cosf(radians);
+    const mat t = { c, -s, 0.f, 0.f,
+                    s, c, 0.f, 0.f,
+                    0.f, 0.f, 1.f, 0.f,
+                    0.f, 0.f, 0.f, 1.f };
+    mMul(r, &t, r);
 }
 
 void mFrustum(mat *r, const float left, const float right, const float bottom, const float top, const float nearZ, const float farZ)
