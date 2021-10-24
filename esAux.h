@@ -1,7 +1,7 @@
 /*
 --------------------------------------------------
     James William Fletcher (james@voxdsp.com)
-        October 2021 - esAux.h v2.0
+        October 2021 - esAux2.h v2.0
 --------------------------------------------------
     
     Requires:
@@ -22,7 +22,7 @@
 
         The phong uses BlinnPhong by default, if you wish to use
         vanilla phong just specify the following definition in
-        you source file: #define REGULAR_PHONG
+        your source file: #define REGULAR_PHONG
 */
 
 #ifndef AUX_H
