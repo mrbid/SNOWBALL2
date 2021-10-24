@@ -54,9 +54,11 @@
 #define GLFW_INCLUDE_NONE
 #include "glfw3.h"
 
-#include "res.h"
+#define NOSSE
+#define SEIR_RAND
 #include "esAux.h"
 
+#include "res.h"
 #include "assets/icogrid.h"
 #include "assets/icosmooth2.h"
 #include "assets/tree.h"
@@ -115,12 +117,12 @@ GLuint bindstate2 = 0; //Just for rTree() color array change
 
 GLuint tex_menu;
 
-ESMatrix projection;
-ESMatrix view;
-ESMatrix model;
-ESMatrix modelview;
+mat projection;
+mat view;
+mat model;
+mat modelview;
 
-ESVector lightpos = {0.f, 0.f, 0.f};
+vec lightpos = {0.f, 0.f, 0.f};
 GLfloat xrot = 0.f;
 GLfloat yrot = 0.f;
 GLfloat zoom = -20.0f;
@@ -162,9 +164,9 @@ GLfloat drag = 0.0023f;
 GLfloat maxspeed = 0.f;
 GLfloat start = 0;
 uint psw = 0;
-ESVector pp;
+vec pp;
 GLfloat pscale = 1.0f;
-ESMatrix pm;
+mat pm;
 GLfloat ps = 0.12f;
 GLfloat pr = 1.0f, pg = 1.0f, pb = 1.0f;
 GLfloat msca = 6.0f;
@@ -197,7 +199,7 @@ float qRandFloatSeed(const uint seed, const float min, const float max)
     return qRandFloat(min, max);
 }
 
-float distance(const ESVector a, const uint16_t b)
+float distance(const vec a, const uint16_t b)
 {
     const float xm = (a.x - icogrid_vertices[b]);
     const float ym = (a.y - icogrid_vertices[b+1]);
@@ -262,10 +264,10 @@ void resetGame(char sf)
 
     pscale = 1.0f;
 
-    esMatrixLoadIdentity(&view);
-    esMatrixLoadIdentity(&model);
-    esMatrixLoadIdentity(&modelview);
-    esMatrixLoadIdentity(&pm);
+    mIdent(&view);
+    mIdent(&model);
+    mIdent(&modelview);
+    mIdent(&pm);
 
     xrot = 0;
     yrot = 0;
@@ -349,17 +351,17 @@ void rGrid()
 
 void rTree(const uint pos, const GLfloat scale, const char iced)
 {
-    esMatrixLoadIdentity(&model);
+    mIdent(&model);
 
-    ESVector v;
+    vec v;
     v.x = icogrid_vertices[pos];
     v.y = icogrid_vertices[pos+1];
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
-    esLookAt(&model, icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2], v.x, v.y, v.z);
-    esScale(&model, scale, scale, scale);
+    mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
+    mScale(&model, scale, scale, scale);
 
-    esMatrixMultiply(&modelview, &model, &view);
+    mMul(&modelview, &model, &view);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -410,18 +412,18 @@ void rTree(const uint pos, const GLfloat scale, const char iced)
 
 void rSphere(const uint pos, const GLfloat scale, const GLfloat r, const GLfloat g, const GLfloat b)
 {
-    esMatrixLoadIdentity(&model);
+    mIdent(&model);
 
-    ESVector v;
+    vec v;
     v.x = icogrid_vertices[pos];
     v.y = icogrid_vertices[pos+1];
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
-    esLookAt(&model, icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2], v.x, v.y, v.z);
+    mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
     if(scale != 1.0)
-        esScale(&model, scale, scale, scale);
+        mScale(&model, scale, scale, scale);
 
-    esMatrixMultiply(&modelview, &model, &view);
+    mMul(&modelview, &model, &view);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -446,19 +448,19 @@ void rSphere(const uint pos, const GLfloat scale, const GLfloat r, const GLfloat
 
 void rPole(const uint pos, const GLfloat scale, const GLfloat yaw, const char aura)
 {
-    esMatrixLoadIdentity(&model);
+    mIdent(&model);
 
-    ESVector v;
+    vec v;
     v.x = icogrid_vertices[pos];
     v.y = icogrid_vertices[pos+1];
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
-    esLookAt(&model, icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2], v.x, v.y, v.z);
-    esRotate(&model, yaw, 0.f, 0.f, 1.f);
+    mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
+    mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
     if(scale != 1.0f)
-        esScale(&model, scale, scale, scale);
+        mScale(&model, scale, scale, scale);
 
-    esMatrixMultiply(&modelview, &model, &view);
+    mMul(&modelview, &model, &view);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -495,19 +497,19 @@ void rPole(const uint pos, const GLfloat scale, const GLfloat yaw, const char au
 
 void rTele(const uint pos, const GLfloat scale, const GLfloat yaw)
 {
-    esMatrixLoadIdentity(&model);
+    mIdent(&model);
 
-    ESVector v;
+    vec v;
     v.x = icogrid_vertices[pos];
     v.y = icogrid_vertices[pos+1];
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
-    esLookAt(&model, icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2], v.x, v.y, v.z);
-    esRotate(&model, yaw, 0.f, 0.f, 1.f);
+    mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
+    mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
     if(scale != 1.0f)
-        esScale(&model, scale, scale, scale);
+        mScale(&model, scale, scale, scale);
 
-    esMatrixMultiply(&modelview, &model, &view);
+    mMul(&modelview, &model, &view);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -533,10 +535,10 @@ void rTele(const uint pos, const GLfloat scale, const GLfloat yaw)
     glDrawElements(GL_TRIANGLES, tele_numind, GL_UNSIGNED_SHORT, 0);
 }
 
-void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat scale)
+void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
 {
-    static ESVector lpp;
-    static ESMatrix lpm;
+    static vec lpp;
+    static mat lpm;
     static GLfloat lrot = 0;
     static GLfloat rot = 0;
 
@@ -552,13 +554,13 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
     if(ps < 0.12f){ps = 0.12f;}
 
     // render
-    esMatrixLoadIdentity(&pm);
+    mIdent(&pm);
 
     // dont render if in epsilon motion increments (basically not moving)
     if(vDist(lpp, pp) > 0.001f)
     {
-        esTranslate(&pm, pp.x, pp.y, pp.z);
-        esSetDirection(&pm, ndir, nup);
+        mTranslate(&pm, pp.x, pp.y, pp.z);
+        mSetViewDir(&pm, ndir, nup);
     }
     else
     {
@@ -566,19 +568,19 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
         pp.y = lpm.m[3][1];
         pp.z = lpm.m[3][2];
         rot = lrot;
-        esMatrixCopy(&pm, &lpm);
+        mCopy(&pm, &lpm);
     }
 
-    esMatrixCopy(&lpm, &pm);
+    mCopy(&lpm, &pm);
     vCopy(&lpp, pp);
     lrot = rot;
 
-    esMatrixCopy(&model, &pm);
+    mCopy(&model, &pm);
     if(scale != 1.0f)
-        esScale(&model, scale, scale, scale);
-    esRotate(&model, rot, 1.f, 0.f, 0.f);
+        mScale(&model, scale, scale, scale);
+    mRotate(&model, rot * DEG2RAD, 1.f, 0.f, 0.f);
 
-    esMatrixMultiply(&modelview, &model, &view);
+    mMul(&modelview, &model, &view);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -628,10 +630,10 @@ void rPlayer(const GLfloat dt, ESVector ndir, const ESVector nup, const GLfloat 
 
 void rSad(const GLfloat dt)
 {
-    esMatrixLoadIdentity(&modelview);
-    esTranslate(&modelview, 0.f, 0.f, sfd);
-    esRotate(&modelview, sfa, 1.f, 0.f, 0.f);
-    esScale(&modelview, sfs, sfs, sfs);
+    mIdent(&modelview);
+    mTranslate(&modelview, 0.f, 0.f, sfd);
+    mRotate(&modelview, sfa * DEG2RAD, 1.f, 0.f, 0.f);
+    mScale(&modelview, sfs * DEG2RAD, sfs, sfs);
     sfd -= 0.16f * dt;
     sfa += 9.0f * dt;
     if(sfs > 0.0f)
@@ -662,14 +664,14 @@ void rSad(const GLfloat dt)
 
 void rIntro(const GLfloat opacity)
 {
-    esMatrixLoadIdentity(&modelview);
-    esTranslate(&modelview, 0.f, 0.f, -1.01f);
+    mIdent(&modelview);
+    mTranslate(&modelview, 0.f, 0.f, -1.01f);
 
     //0.21
     GLfloat ns = 0.14f * aspect * 0.5f;
     if(ns < 0.14f)
         ns = 0.14f;
-    esScale(&modelview, ns, ns, ns);
+    mScale(&modelview, ns, ns, ns);
 
     glEnable(GL_BLEND);
 
@@ -685,14 +687,14 @@ void rIntro(const GLfloat opacity)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlIntro.iid);
     glDrawElements(GL_TRIANGLES, intro_numind, GL_UNSIGNED_SHORT, 0);
 
-    esMatrixLoadIdentity(&modelview);
-    esTranslate(&modelview, 0.f, 0.f, -1.01f);
+    mIdent(&modelview);
+    mTranslate(&modelview, 0.f, 0.f, -1.01f);
 
     //0.20
     ns = 0.133f * aspect * 0.5f;
     if(ns < 0.133f)
         ns = 0.133f;
-    esScale(&modelview, ns, ns, ns);
+    mScale(&modelview, ns, ns, ns);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -711,9 +713,9 @@ void rIntro(const GLfloat opacity)
 
 void rHeart(const GLfloat opacity)
 {
-    esMatrixLoadIdentity(&modelview);
-    esTranslate(&modelview, 0.f, 0.f, -1.01f);
-    esScale(&modelview, 4.2f, 4.2f, 4.2f);
+    mIdent(&modelview);
+    mTranslate(&modelview, 0.f, 0.f, -1.01f);
+    mScale(&modelview, 4.2f, 4.2f, 4.2f);
 
     glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
@@ -853,32 +855,32 @@ void main_loop()
 // camera control
 //*************************************
 
-    esMatrixLoadIdentity(&view);
+    mIdent(&view);
 
-    esTranslate(&view, 0.f, 0.f, zoom);
+    mTranslate(&view, 0.f, 0.f, zoom);
 
-    esRotate(&view, -yrot, 1.f, 0.f, 0.f);
-    esRotate(&view, xrot, 0.f, 0.f, 1.f);
+    mRotate(&view, -yrot * DEG2RAD, 1.f, 0.f, 0.f);
+    mRotate(&view, xrot * DEG2RAD, 0.f, 0.f, 1.f);
 
 //*************************************
 // camera look vector
 //*************************************
 
-    ESVector ray_eye;
+    vec ray_eye;
     ray_eye.x = view.m[0][2];
     ray_eye.y = view.m[1][2];
     ray_eye.z = view.m[2][2]; // already normalised
 
-    ESVector dp;
+    vec dp;
     vCopy(&dp, ray_eye);
-    vMulScalar(&dp, dp, ps*deltaTime); //cast out
+    vMulS(&dp, dp, ps*deltaTime); //cast out
     vAdd(&pp, pp, dp);
 
-    ESVector pn;
+    vec pn;
     vCopy(&pn, pp);
     vNorm(&pn);
-    ESVector vn;
-    vMulScalar(&vn, pn, 12.55f + ((pscale*0.5f)*0.1f));
+    vec vn;
+    vMulS(&vn, pn, 12.55f + ((pscale*0.5f)*0.1f));
     vCopy(&pp, vn);
 
 //*************************************
@@ -1035,9 +1037,9 @@ else if(t < hrt)
     {
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
 
-        esMatrixLoadIdentity(&modelview);
-        esTranslate(&modelview, 0.f, 0.f, -1.730f);
-        esScale(&modelview, uw*370.f, uh*271.f, 0);
+        mIdent(&modelview);
+        mTranslate(&modelview, 0.f, 0.f, -1.730f);
+        mScale(&modelview, uw*370.f, uh*271.f, 0);
 
         glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*)&projection.m[0][0]);
         glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*)&modelview.m[0][0]);
@@ -1224,8 +1226,8 @@ void window_size_callback(GLFWwindow* window, int width, int height)
     uw = aspect / (GLfloat)winw;
     uh = 1.f / (GLfloat)winh;
 
-    esMatrixLoadIdentity(&projection);
-    esPerspective(&projection, 60.0f, aspect, 1.0f, 60.0f); 
+    mIdent(&projection);
+    mPerspective(&projection, 60.0f, aspect, 1.0f, 60.0f); 
 }
 
 //*************************************
