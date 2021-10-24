@@ -50,7 +50,7 @@ For anyone confused by that terminology ([ref](https://www.merriam-webster.com/w
 `The prefix intra- means "within" (as in happening within a single thing), while the prefix inter- means "between" (as in happening between two things).`
 
 ## Prerequisites
-`sudo apt install libglfw3 libglfw3-dev`
+`sudo apt install libglfw3 libglfw3-dev upx-ucl`
 
 ## Linux Binary
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
