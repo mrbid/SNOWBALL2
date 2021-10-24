@@ -24,7 +24,9 @@
 #define x2PI 6.283185482f       // PI * 2
 #define d2PI 1.570796371f       // PI / 2
 #define DEGREE 57.29578018f     // 1 Radian as Degrees
-#define RADIAN 0.01745329238f   // PI / 180 (1 Degree as Radians
+#define RADIAN 0.01745329238f   // PI / 180 (1 Degree as Radians)
+#define RAD2DEG DEGREE
+#define DEG2RAD RADIAN
 
 #define FLOAT_MAX 9223372036854775807.0f
 #define INV_FLOAT_MAX 1.084202172e-19F
@@ -138,7 +140,7 @@ float randf()
     srandfq = _m_to_int64(mm0);
 
     _m_empty();
-    return ( fabs(srandfq+1e-7f) * INV_FLOAT_MAX );
+    return fabs(srandfq+1e-7f) * INV_FLOAT_MAX;
 }
 
 #endif
