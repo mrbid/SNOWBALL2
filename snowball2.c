@@ -429,7 +429,8 @@ void rPole(const uint pos, const GLfloat scale, const GLfloat yaw, const char au
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
     mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
-    mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
+    //mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
+    mRotX(&model, yaw * DEG2RAD);
     if(scale != 1.0f)
         mScale(&model, scale, scale, scale);
 
@@ -478,7 +479,8 @@ void rTele(const uint pos, const GLfloat scale, const GLfloat yaw)
     v.z = icogrid_vertices[pos+2];
     vNorm(&v);
     mLookAt(&model, (vec){icogrid_vertices[pos], icogrid_vertices[pos+1], icogrid_vertices[pos+2]}, (vec){v.x, v.y, v.z});
-    mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
+    //mRotate(&model, yaw * DEG2RAD, 0.f, 0.f, 1.f);
+    mRotX(&model, yaw * DEG2RAD);
     if(scale != 1.0f)
         mScale(&model, scale, scale, scale);
 
@@ -551,7 +553,8 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
     mCopy(&model, &pm);
     if(scale != 1.0f)
         mScale(&model, scale, scale, scale);
-    mRotate(&model, rot * DEG2RAD, 1.f, 0.f, 0.f);
+    //mRotate(&model, rot * DEG2RAD, 1.f, 0.f, 0.f);
+    mRotY(&model, rot * DEG2RAD);
 
     mMul(&modelview, &model, &view);
 
@@ -605,7 +608,8 @@ void rSad(const GLfloat dt)
 {
     mIdent(&modelview);
     mTranslate(&modelview, 0.f, 0.f, sfd);
-    mRotate(&modelview, sfa * DEG2RAD, 1.f, 0.f, 0.f);
+    //mRotate(&modelview, sfa * DEG2RAD, 1.f, 0.f, 0.f);
+    mRotY(&modelview, sfa * DEG2RAD);
     mScale(&modelview, sfs, sfs, sfs);
     sfd -= 0.16f * dt;
     sfa += 9.0f * dt;
@@ -831,9 +835,7 @@ void main_loop()
 //*************************************
 
     mIdent(&view);
-
     mTranslate(&view, 0.f, 0.f, zoom);
-
     mRotate(&view, -yrot * DEG2RAD, 1.f, 0.f, 0.f);
     mRotate(&view, xrot * DEG2RAD, 0.f, 0.f, 1.f);
 
