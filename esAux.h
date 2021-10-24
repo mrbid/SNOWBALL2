@@ -1,10 +1,12 @@
 /*
 --------------------------------------------------
     James William Fletcher (james@voxdsp.com)
-        December 2020 - esAux.h v1.0
+        October 2021 - esAux.h v2.0
 --------------------------------------------------
-    https://github.com/esaux
+    v2.0:
+    - added support for fullbright texture mapping
 
+    v1.0:
     An OpenGL ES auxiliary library, in an OpenGL ES style.
     I can't say I wrote every function in this file because
     I didn't, like esCramerInvert() was from some intel pdf
@@ -72,22 +74,33 @@ typedef struct
     GLuint iid;	// Index Array Buffer ID
     GLuint cid;	// Colour Array Buffer ID
     GLuint nid;	// Normal Array Buffer ID
+    GLuint tid;	// TexCoord Array Buffer ID
 } ESModel;
 
 // defines
-#define PI 3.1415926535897932384626433832795f   // PI
-#define x2PI 6.283185307178f                    // PI * 2
-#define PI_2 1.570796326794f                    // PI / 2
-#define DEGREE 57.295779513096f                 // 1 Radian as Degrees
-#define RADIAN 0.017453293f                     // PI / 180 (1 Degree as Radians)
+#define PI 3.141592741f         // PI
+#define x2PI 6.283185482f       // PI * 2
+#define d2PI 1.570796371f       // PI / 2
+#define DEGREE 57.29578018f     // 1 Radian as Degrees
+#define RADIAN 0.01745329238f   // PI / 180 (1 Degree as Radians
+
+#define FLOAT_MAX 9223372036854775807.0f
+#define INV_FLOAT_MAX 1.084202172e-19F
 
 // vector
+void vRuv(ESVector* v);   // Random Unit Vector
+void vRuvN(ESVector* v);  // Normal Random Unit Vector
+void vRuvBT(ESVector* v); // Brian Tung Random Unit Vector
+void vRuvTA(ESVector* v); // T.Davison Trial & Error
+void vRuvTD(ESVector* v); // T.Davison Random Unit Vector Sphere
+
 void vCross(ESVector* r, const ESVector v1, const ESVector v2);
 GLfloat vDot(const ESVector v1, const ESVector v2);
 
 void vNorm(ESVector* v);
 GLfloat vDist(const ESVector v1, const ESVector v2);
 GLfloat vModulus(const ESVector v);
+GLfloat vMagnitude(const ESVector v);
 void vInvert(ESVector* v);
 void vCopy(ESVector* r, const ESVector v);
 
@@ -128,8 +141,13 @@ void esGetDirectionZ(ESVector *result, const ESMatrix matrix);
 void esGetViewDirection(ESVector *result, const ESMatrix matrix);
 
 // utility functions
+float randf();  // uniform
+float randfn(); // box-muller normal
+int ftoi(float f); // float to integer quantise
 GLfloat esRandFloat(const GLfloat min, const GLfloat max);
 void esBind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage);
+void esBindModel(ESModel* model, const GLfloat* vertices, const GLsizei vertlen, const GLushort* indices, const GLsizei indlen);
+GLuint esLoadTexture(const GLuint w, const GLuint h, const unsigned char* data);
 
 // quaternion
 void qMatrix(ESMatrix* r, const ESVector q);
@@ -158,6 +176,7 @@ void makePhong1();
 void makePhong2();
 void makePhong3();
 
+void shadeFullbrightT(GLint* position, GLint* projection, GLint* modelview, GLint* texcoord, GLint* sampler);                             // texture + no shading
 void shadeFullbright(GLint* position, GLint* projection, GLint* modelview, GLint* color, GLint* opacity);                                 // solid color + no shading
 
 void shadeLambert(GLint* position, GLint* projection, GLint* modelview, GLint* lightpos, GLint* color, GLint* opacity);                   // solid color + no normals
@@ -173,6 +192,53 @@ void shadePhong3(GLint* position, GLint* projection, GLint* modelview, GLint* no
 //*************************************
 // MATRIX CODE
 //*************************************
+
+void vRuv(ESVector* v)
+{
+    v->x = (randf() * 2.f) - 1.f;
+    v->y = (randf() * 2.f) - 1.f;
+    v->z = (randf() * 2.f) - 1.f;
+}
+
+void vRuvN(ESVector* v)
+{
+    v->x = randfn();
+    v->y = randfn();
+    v->z = randfn();
+}
+
+void vRuvBT(ESVector* v)
+{
+    // https://math.stackexchange.com/a/1586185
+    // or should I have called this vRuvLR()
+    // https://mathworld.wolfram.com/SpherePointPicking.html
+    const float y = acos((randf() * 2.f) - 1.f) - d2PI;
+    const float p = x2PI * randf();
+    v->x = cos(y) * cos(p);
+    v->y = cos(y) * sin(p);
+    v->z = sin(y);
+}
+
+void vRuvTA(ESVector* v)
+{
+    // T.P.Davison@tees.ac.uk
+    while(1)
+    {
+        v->x = (randf() * 2.f) - 1.f;
+        v->y = (randf() * 2.f) - 1.f;
+        v->z = (randf() * 2.f) - 1.f;
+        const float len = vMagnitude(*v);
+        if(len <= 1.0f){return;}
+    }
+}
+
+void vRuvTD(ESVector* v)
+{
+    // T.P.Davison@tees.ac.uk
+    v->x = sin((randf() * x2PI) - PI);
+    v->y = cos((randf() * x2PI) - PI);
+    v->z = (randf() * 2.f) - 1.f;
+}
 
 void vCross(ESVector* r, const ESVector v1, const ESVector v2)
 {
@@ -205,6 +271,11 @@ GLfloat vDist(const ESVector v1, const ESVector v2)
 GLfloat vModulus(const ESVector v)
 {
     return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+GLfloat vMagnitude(const ESVector v)
+{
+    return v.x*v.x + v.y*v.y + v.z*v.z;
 }
 
 void vInvert(ESVector* v)
@@ -406,54 +477,49 @@ void esTranslate(ESMatrix *result, const GLfloat tx, const GLfloat ty, const GLf
 
 void esRotate(ESMatrix *result, const GLfloat degree, GLfloat x, GLfloat y, GLfloat z)
 {
-   GLfloat sinAngle, cosAngle;
-   GLfloat mag = sqrtf(x * x + y * y + z * z);
-      
-   sinAngle = sinf ( degree * RADIAN );
-   cosAngle = cosf ( degree * RADIAN );
-   if ( mag > 0.0f )
-   {
-      GLfloat xx, yy, zz, xy, yz, zx, xs, ys, zs;
-      GLfloat oneMinusCos;
-      ESMatrix rotMat;
-   
-      x /= mag;
-      y /= mag;
-      z /= mag;
+    const float mag = 1.f/sqrtf(x * x + y * y + z * z);
+    const float sinAngle = sinf(degree * RADIAN);
+    const float cosAngle = cosf(degree * RADIAN);
+    if(mag > 0.0f)
+    {
+        x *= mag;
+        y *= mag;
+        z *= mag;
 
-      xx = x * x;
-      yy = y * y;
-      zz = z * z;
-      xy = x * y;
-      yz = y * z;
-      zx = z * x;
-      xs = x * sinAngle;
-      ys = y * sinAngle;
-      zs = z * sinAngle;
-      oneMinusCos = 1.0f - cosAngle;
+        const float xx = x * x;
+        const float yy = y * y;
+        const float zz = z * z;
+        const float xy = x * y;
+        const float yz = y * z;
+        const float zx = z * x;
+        const float xs = x * sinAngle;
+        const float ys = y * sinAngle;
+        const float zs = z * sinAngle;
+        const float oneMinusCos = 1.0f - cosAngle;
 
-      rotMat.m[0][0] = (oneMinusCos * xx) + cosAngle;
-      rotMat.m[0][1] = (oneMinusCos * xy) - zs;
-      rotMat.m[0][2] = (oneMinusCos * zx) + ys;
-      rotMat.m[0][3] = 0.0F; 
+        ESMatrix rotMat;
+        rotMat.m[0][0] = (oneMinusCos * xx) + cosAngle;
+        rotMat.m[0][1] = (oneMinusCos * xy) - zs;
+        rotMat.m[0][2] = (oneMinusCos * zx) + ys;
+        rotMat.m[0][3] = 0.0F; 
 
-      rotMat.m[1][0] = (oneMinusCos * xy) + zs;
-      rotMat.m[1][1] = (oneMinusCos * yy) + cosAngle;
-      rotMat.m[1][2] = (oneMinusCos * yz) - xs;
-      rotMat.m[1][3] = 0.0F;
+        rotMat.m[1][0] = (oneMinusCos * xy) + zs;
+        rotMat.m[1][1] = (oneMinusCos * yy) + cosAngle;
+        rotMat.m[1][2] = (oneMinusCos * yz) - xs;
+        rotMat.m[1][3] = 0.0F;
 
-      rotMat.m[2][0] = (oneMinusCos * zx) - ys;
-      rotMat.m[2][1] = (oneMinusCos * yz) + xs;
-      rotMat.m[2][2] = (oneMinusCos * zz) + cosAngle;
-      rotMat.m[2][3] = 0.0F; 
+        rotMat.m[2][0] = (oneMinusCos * zx) - ys;
+        rotMat.m[2][1] = (oneMinusCos * yz) + xs;
+        rotMat.m[2][2] = (oneMinusCos * zz) + cosAngle;
+        rotMat.m[2][3] = 0.0F; 
 
-      rotMat.m[3][0] = 0.0F;
-      rotMat.m[3][1] = 0.0F;
-      rotMat.m[3][2] = 0.0F;
-      rotMat.m[3][3] = 1.0F;
+        rotMat.m[3][0] = 0.0F;
+        rotMat.m[3][1] = 0.0F;
+        rotMat.m[3][2] = 0.0F;
+        rotMat.m[3][3] = 1.0F;
 
-      esMatrixMultiply( result, &rotMat, result );
-   }
+        esMatrixMultiply( result, &rotMat, result );
+    }
 }
 
 void esFrustum(ESMatrix *result, const GLfloat left, const GLfloat right, const GLfloat bottom, const GLfloat top, const GLfloat nearZ, const GLfloat farZ)
@@ -717,6 +783,43 @@ void esGetViewDirection(ESVector *result, const ESMatrix matrix)
 
 ///
 
+int srandfq = 8008135;
+static inline void srandf(const int seed)
+{
+    srandfq = seed;
+}
+
+float randf()
+{
+    // https://www.musicdsp.org/en/latest/Other/273-fast-float-random-numbers.html
+    // moc.liamg@seir.kinimod
+    srandfq *= 16807;
+    return (float)(srandfq & 0x7FFFFFFF) * 4.6566129e-010f;
+}
+
+float randfn()
+{
+    float u = randf() * 2 - 1;
+    float v = randf() * 2 - 1;
+    float r = u * u + v * v;
+    while(r == 0 || r > 1)
+    {
+        u = randf() * 2 - 1;
+        v = randf() * 2 - 1;
+        r = u * u + v * v;
+    }
+    return u * sqrt(-2 * log(r) / r);
+}
+
+int vec_ftoi(float f)
+{
+    if(f < 0)
+        f -= 0.5f;
+    else
+        f += 0.5f;
+    return (int)f;
+}
+
 GLfloat esRandFloat(const GLfloat min, const GLfloat max)
 {
     static GLfloat rndmax = (GLfloat)RAND_MAX;
@@ -728,6 +831,35 @@ void esBind(const GLenum target, GLuint* buffer, const void* data, const GLsizei
     glGenBuffers(1, buffer);
     glBindBuffer(target, *buffer);
     glBufferData(target, datalen, data, usage);
+}
+
+void esBindModel(ESModel* model, const GLfloat* vertices, const GLsizei vertlen, const GLushort* indices, const GLsizei indlen)
+{
+    esBind(GL_ARRAY_BUFFER, &model->vid, vertices, vertlen * sizeof(GLfloat) * 3, GL_STATIC_DRAW);
+    esBind(GL_ARRAY_BUFFER, &model->iid, indices, indlen * sizeof(GLushort), GL_STATIC_DRAW);
+}
+
+GLuint esLoadTexture(const GLuint w, const GLuint h, const unsigned char* data)
+{
+   GLuint textureId;
+
+   // Use tightly packed data
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+   // Generate a texture object
+   glGenTextures(1, &textureId);
+
+   // Bind the texture object
+   glBindTexture(GL_TEXTURE_2D, textureId);
+
+   // Load the texture
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+   // Set the filtering mode
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+   return textureId;
 }
 
 ///
@@ -877,6 +1009,31 @@ void qRotV(ESVector* vn, const ESVector qn) // not tested
 //*************************************
 // SHADER CODE
 //*************************************
+
+const GLchar* vt0 =
+    "#version 100\n"
+    "uniform mat4 modelview;\n"
+    "uniform mat4 projection;\n"
+    "attribute vec4 position;\n"
+    "attribute vec2 texcoord;\n"
+    "varying vec2 vtc;\n"
+    "void main()\n"
+    "{\n"
+        "vtc = texcoord;\n"
+        "gl_Position = projection * modelview * position;\n"
+    "}\n";
+
+const GLchar* ft0 =
+    "#version 100\n"
+    "precision mediump float;\n"
+    "varying vec2 vtc;\n"
+    "uniform sampler2D tex;\n"
+    "void main()\n"
+    "{\n"
+        "gl_FragColor = texture2D(tex, vtc);\n"
+    "}\n";
+
+//
 
 const GLchar* v0 =
     "#version 100\n"
@@ -1166,6 +1323,12 @@ const GLchar* f2 =
 
 //
 
+GLuint shdFullbrightT;
+GLint  shdFullbrightT_position;
+GLint  shdFullbrightT_projection;
+GLint  shdFullbrightT_modelview;
+GLint  shdFullbrightT_texcoord;
+GLint  shdFullbrightT_sampler;
 GLuint shdFullbright;
 GLint  shdFullbright_position;
 GLint  shdFullbright_projection;
@@ -1238,6 +1401,29 @@ GLint  shdPhong3_normal;
 GLint  shdPhong3_opacity;
 
 //
+void makeFullbrightT()
+{
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vt0, NULL);
+    glCompileShader(vertexShader);
+
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &ft0, NULL);
+    glCompileShader(fragmentShader);
+
+    shdFullbrightT = glCreateProgram();
+        glAttachShader(shdFullbrightT, vertexShader);
+        glAttachShader(shdFullbrightT, fragmentShader);
+    glLinkProgram(shdFullbrightT);
+
+    shdFullbrightT_position   = glGetAttribLocation(shdFullbrightT,  "position");
+    shdFullbrightT_texcoord   = glGetAttribLocation(shdFullbrightT,  "texcoord");
+
+    shdFullbrightT_projection = glGetUniformLocation(shdFullbrightT, "projection");
+    shdFullbrightT_modelview  = glGetUniformLocation(shdFullbrightT, "modelview");
+    shdFullbrightT_sampler    = glGetUniformLocation(shdFullbrightT, "tex");
+}
+
 
 void makeFullbright()
 {
@@ -1464,6 +1650,7 @@ void makePhong3()
 
 void makeAllShaders()
 {
+    makeFullbrightT();
     makeFullbright();
     makeLambert();
     makeLambert1();
@@ -1473,6 +1660,16 @@ void makeAllShaders()
     makePhong1();
     makePhong2();
     makePhong3();
+}
+
+void shadeFullbrightT(GLint* position, GLint* projection, GLint* modelview, GLint* texcoord, GLint* sampler)
+{
+    *position = shdFullbrightT_position;
+    *projection = shdFullbrightT_projection;
+    *modelview = shdFullbrightT_modelview;
+    *texcoord = shdFullbrightT_texcoord;
+    *sampler = shdFullbrightT_sampler;
+    glUseProgram(shdFullbrightT);
 }
 
 void shadeFullbright(GLint* position, GLint* projection, GLint* modelview, GLint* color, GLint* opacity)
