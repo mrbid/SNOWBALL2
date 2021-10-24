@@ -135,12 +135,13 @@ uint seed = 1337;
 double score = 0.f;
 GLfloat drag = 0.0023f;
 GLfloat maxspeed = 0.f;
+const GLfloat minspeed = 0.22f;
 GLfloat start = 0;
 uint psw = 0;
 vec pp;
 GLfloat pscale = 1.0f;
 mat pm;
-GLfloat ps = 0.12f;
+GLfloat ps = minspeed;
 GLfloat pr = 1.0f, pg = 1.0f, pb = 1.0f;
 GLfloat msca = 6.0f;
 
@@ -259,7 +260,7 @@ void resetGame(char sf)
             sfs = 1.0f;
         pr = 1.0f, pg = 1.0f, pb = 1.0f;
         level = 0;
-        ps = 0.12f;
+        ps = minspeed;
         psw = 0;
         msca = 6.0f;
         score = 0;
@@ -526,7 +527,7 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
 
     // speed drag
     ps -= drag*dt;
-    if(ps < 0.12f){ps = 0.12f;}
+    if(ps < minspeed){ps = minspeed;}
 
     // render
     mIdent(&pm);
