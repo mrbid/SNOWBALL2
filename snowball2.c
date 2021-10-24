@@ -2,38 +2,11 @@
     James William Fletcher (james@voxdsp.com)
         June 2020 - October 2021
 
-    *** COVERTED FROM SDL2 TO GLFW ***
-        I like how GFLW is just letting me call OpenGL ES functions in GL.
-        16x MSAA now mandatory
-        I had to manually adjust timings...
-
     Two of the application 16x16 icons are from http://www.forrestwalter.com/icons/
     A Helpful Colour Converter: https://www.easyrgb.com
 
     I released the original game back in November 2020 as a webgl game:
     http://snowball.mobi
-
-    An article that covers this engine:
-    https://medium.com/swlh/a-simple-3d-renderer-for-the-web-in-c-15397bb2352f
-
-    Not the cleanest code ever, I was excited when making this so only
-    performance and the end product was in mind.
-
-    Why is there no sound? Well, sound is a hard thing to get right, and I
-    had some ideas such as using SAM: https://discordier.github.io/sam/
-    or playing the next beat in a very simple tune on each snowball collection
-    so that the faster the flow the more in time the beat played.
-    or just using simple 8bit style sound effects synthesized in real-time.
-
-    But ultimately I just like it with no sound.
-
-    This can be launched in any window size from command line:
-    ./snowball 1920 1080
-
-    Or for a full commandline:
-    ./snowball <width> <height> <mouse sensitivity> <random seed>
-
-    Specify -1.0 to invert the mouse.
 
     Controls:
     Mouse 1 (Left)  = Toggle Control
@@ -633,7 +606,7 @@ void rSad(const GLfloat dt)
     mIdent(&modelview);
     mTranslate(&modelview, 0.f, 0.f, sfd);
     mRotate(&modelview, sfa * DEG2RAD, 1.f, 0.f, 0.f);
-    mScale(&modelview, sfs * DEG2RAD, sfs, sfs);
+    mScale(&modelview, sfs, sfs, sfs);
     sfd -= 0.16f * dt;
     sfa += 9.0f * dt;
     if(sfs > 0.0f)
@@ -658,8 +631,10 @@ void rSad(const GLfloat dt)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlSad.iid);
 
     glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
         glDrawElements(GL_TRIANGLES, sad_numind, GL_UNSIGNED_SHORT, 0);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
 }
 
 void rIntro(const GLfloat opacity)
@@ -1235,7 +1210,7 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 //*************************************
 int main(int argc, char** argv)
 {
-    // should I be using getopt? I prefer this. Also this to be superseded by the UI.
+    // should I be using getopt? I prefer this.
     uint noborder = 0, msaa = 16;
     if(argc >= 2){seed = atof(argv[1]);}
     if(argc >= 3){msaa = atoi(argv[2]);}
@@ -1334,7 +1309,6 @@ int main(int argc, char** argv)
     GLfloat  plane_vert[] = {1.000000,-1.000000,0.000000,-1.000000,1.000000,0.000000,-1.000000,-1.000000,0.000000,1.000000,1.000000,0.000000};
     GLushort plane_indi[] = {0,1,2,0,3,1};
     esBindModel(&mdlPlane, plane_vert, 9, plane_indi, 6);
-    // GLfloat plane_texc[] = {0.f,0.f, 0.f,1.f, 1.f,1.f, 1.f,0.f};
     GLfloat plane_texc[] = {1.f,1.f, 0.f,0.f, 0.f,1.f, 1.f,0.f};
     esBind(GL_ARRAY_BUFFER, &mdlPlane.tid, plane_texc, sizeof(plane_texc), GL_STATIC_DRAW);
     tex_menu = esLoadTexture(menu_image.width, menu_image.height, &menu_image.pixel_data[0]);
@@ -1391,8 +1365,6 @@ int main(int argc, char** argv)
 // configure render options
 //*************************************
 
-    //glDisable(GL_DEPTH_TEST);
-    //glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glClearColor(0.0, 0.0, 0.0, 0.0);
