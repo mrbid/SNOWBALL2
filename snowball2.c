@@ -56,7 +56,7 @@
 
 #define NOSSE
 #define SEIR_RAND
-#include "esAux.h"
+#include "esAux2.h"
 
 #include "res.h"
 #include "assets/icogrid.h"
