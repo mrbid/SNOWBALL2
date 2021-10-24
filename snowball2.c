@@ -521,7 +521,7 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
     // rotation
     float sscale = scale*100.f;
     if(sscale > 900.f){sscale = 900.f;}
-    const float rd = (-(1000.f-sscale)*vDist(lpp, pp)) * dt;
+    const float rd = (-(1300.f-sscale)*vDist(lpp, pp)) * dt;
     rot += rd;
     //printf("%f %f\n", rd, dt);
 
