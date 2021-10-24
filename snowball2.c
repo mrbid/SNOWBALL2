@@ -1014,7 +1014,7 @@ else if(t < hrt)
 
         mIdent(&modelview);
         mTranslate(&modelview, 0.f, 0.f, -1.730f);
-        mScale(&modelview, uw*370.f, uh*271.f, 0);
+        mScale(&modelview, uw*370.f, uh*197.f, 0);
 
         glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*)&projection.m[0][0]);
         glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*)&modelview.m[0][0]);
