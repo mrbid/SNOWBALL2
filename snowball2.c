@@ -1081,6 +1081,7 @@ else if(t < hrt)
         rx += uw2*14;
         ry += uw2*14;
         // rMenuHighlight(rx, ry);
+        menu_focus = 0;
 
         double xo = -172;
         double yo = -92;
