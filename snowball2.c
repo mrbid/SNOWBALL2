@@ -187,6 +187,11 @@ float distance(const vec a, const uint16_t b)
 
 void resetGame(char sf)
 {
+    if(sf == 2)
+        level++;
+    srand(seed+level);
+    printf("Level Seed: %d\n", seed+level);
+
     for(int i = 0; i < max_tree; i++)
     {
         uint ni = qRand(0, icogrid_numvert-3)*3;
@@ -281,7 +286,7 @@ void resetGame(char sf)
     {
         if(psw)
         {
-            pr = qRandFloat(0.3f, 1.f);
+            pr = qRandFloatSeed(seed+level, 0.3f, 1.f);
             pg = qRandFloat(0.3f, 1.f);
             pb = qRandFloat(0.3f, 1.f);
         }
@@ -299,15 +304,13 @@ void resetGame(char sf)
 
         hrt = t+1.6;
         msca += 0.33f;
-        level++;
         
         char title[256];
         sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
         glfwSetWindowTitle(window, title);
     }
 
-    if(sf != 4)
-        sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
+    sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
 }
 
 
@@ -934,7 +937,7 @@ shadeLambert3(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
         GLfloat ns = 1;
         if(level >= 1)
         {
-            ns = (float)qRandSeed(tp[i]+level, 1, 2);
+            ns = (float)qRandSeed(seed+tp[i]+level, 1, 2);
             if(ns == 2.f)
                 ns = 1.6f;
         }
@@ -972,7 +975,7 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
 
         if(distance(pp, sp[i]) <= pscale*0.1f)
         {
-            const float ss = qRandFloatSeed(sp[i]+level, 0.3f, 1.0f);
+            const float ss = qRandFloatSeed(seed+sp[i]+level, 0.3f, 1.0f);
             sp[i] = 0;
             ps += 0.06f*ss;
             pscale += ss*0.03f;
@@ -981,9 +984,9 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
         }
 
         if(sport == 0)
-            rSphere(sp[i], qRandFloatSeed(sp[i]+level, 0.5f, 1.0f), 1.0f, 1.0f, 1.0f);
+            rSphere(sp[i], qRandFloatSeed(seed+sp[i]+level, 0.5f, 1.0f), 1.0f, 1.0f, 1.0f);
         else
-            rSphere(sp[i], qRandFloatSeed(sp[i]+level, 0.5f, 1.0f), 0.f, 0.f, 1.0f);
+            rSphere(sp[i], qRandFloatSeed(seed+sp[i]+level, 0.5f, 1.0f), 0.f, 0.f, 1.0f);
     }
 
     for(int i = 0; i < max_gold; i++)
@@ -993,7 +996,7 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
 
         if(distance(pp, gp[i]) <= pscale*0.1f)
         {
-            const float ss = qRandFloatSeed(gp[i]+level, 0.3f, 1.0f);
+            const float ss = qRandFloatSeed(seed+gp[i]+level, 0.3f, 1.0f);
             gp[i] = 0;
             ps += 0.12f*ss;
             pscale += ss*0.12f;
@@ -1002,9 +1005,9 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
         }
 
         if(sport == 0)
-            rSphere(gp[i], qRandFloatSeed(gp[i]+level, 0.4f, 0.65f), 1.0f, 1.0f, 0.0f);
+            rSphere(gp[i], qRandFloatSeed(seed+gp[i]+level, 0.4f, 0.65f), 1.0f, 1.0f, 0.0f);
         else
-            rSphere(gp[i], qRandFloatSeed(gp[i]+level, 0.4f, 0.65f), 1.0f, 0.f, 0.f);
+            rSphere(gp[i], qRandFloatSeed(seed+gp[i]+level, 0.4f, 0.65f), 1.0f, 0.f, 0.f);
     }
 // --
 if(pscale < 1.0f)
@@ -1132,9 +1135,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         //     // glfwSetWindowTitle(window, title);
         //     // pscale += 1.f;
         //     // msca = pscale;
-        //     static uint nb = 1;
-        //     setBorderMode(nb);
-        //     nb = 1 - nb;
+
+        //     // static uint nb = 1;
+        //     // setBorderMode(nb);
+        //     // nb = 1 - nb;
+
+        //     resetGame(2);
         // }
         // break;
 
