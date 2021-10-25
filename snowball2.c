@@ -154,6 +154,12 @@ GLfloat msca = 6.0f;
 //*************************************
 // utility functions
 //*************************************
+void timestamp(char* ts)
+{
+    const time_t tt = time(0);
+    strftime(ts, 16, "%H:%M:%S", localtime(&tt));
+}
+
 uint qRand(const uint min, const uint max)
 {
     static float rndmax = (float)RAND_MAX;
@@ -191,7 +197,9 @@ void resetGame(char sf)
     if(sf == 2)
         level++;
     srand(seed+level);
-    printf("Level Seed: %d\n", seed+level);
+    char strts[16];
+    timestamp(&strts[0]);
+    printf("[%s] Level Seed: %d\n", strts, seed+level);
 
     for(int i = 0; i < max_tree; i++)
     {
@@ -836,14 +844,18 @@ void main_loop()
                     {
                         sens_mul -= 0.03f;
                         setBaseSensitivity();
-                        printf("Sens: %.3f\n", sens_mul);
+                        char strts[16];
+                        timestamp(&strts[0]);
+                        printf("[%s] Sens: %.3f\n", strts, sens_mul);
                         bt = t + 0.3f;
                     }
                     else if(buttons[1] == GLFW_PRESS)
                     {
                         sens_mul += 0.03f;
                         setBaseSensitivity();
-                        printf("Sens: %.3f\n", sens_mul);
+                        char strts[16];
+                        timestamp(&strts[0]);
+                        printf("[%s] Sens: %.3f\n", strts, sens_mul);
                         bt = t + 0.3f;
                     }
                     else if(buttons[2] == GLFW_PRESS || buttons[9] == GLFW_PRESS || buttons[10] == GLFW_PRESS)
@@ -1178,7 +1190,17 @@ else if(t < hrt)
                 sens_mul = ns;
 
             setBaseSensitivity();
-            printf("Sens: %.3f\n", sens_mul);
+
+            static double tc = 0;
+            static GLfloat tls = 0;
+            if(t > tc && tls != sens_mul)
+            {
+                char strts[16];
+                timestamp(&strts[0]);
+                printf("[%s] Sens: %.3f\n", strts, sens_mul);
+                tls = sens_mul;
+                tc = t+0.1;
+            }
         }
         else
         {
@@ -1292,7 +1314,9 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
                     seed = 1337;
                     for(int i = 0; i < 27; i++)
                         seed ^= seed_bits[i] << i;
-                    printf("Seed: %u\n", seed);
+                    char strts[16];
+                    timestamp(&strts[0]);
+                    printf("[%s] Seed: %u\n", strts, seed);
                     srand(seed);
                     resetGame(4);
                 }
@@ -1304,14 +1328,18 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
         sens_mul -= 0.1f;
         setBaseSensitivity();
-        printf("Sens: %.3f\n", sens_mul);
+        char strts[16];
+        timestamp(&strts[0]);
+        printf("[%s] Sens: %.3f\n", strts, sens_mul);
     }
     
     if(button == GLFW_MOUSE_BUTTON_5 && action == GLFW_PRESS && show_ui == 0)
     {
         sens_mul += 0.1f;
         setBaseSensitivity();
-        printf("Sens: %.3f\n", sens_mul);
+        char strts[16];
+        timestamp(&strts[0]);
+        printf("[%s] Sens: %.3f\n", strts, sens_mul);
     }
 
     if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && show_ui == 0)
@@ -1552,7 +1580,9 @@ int main(int argc, char** argv)
         fc++;
         if(t > lt)
         {
-            printf("FPS: %.0f\n", fc/16);
+            char strts[16];
+            timestamp(&strts[0]);
+            printf("[%s] FPS: %.0f\n", strts, fc/16);
             fc = 0;
             lt = t + 16;
         }
