@@ -52,8 +52,8 @@ double t = 0;
 GLfloat aspect;
 GLfloat sens = 0.3f;
 GLfloat sens_mul = 0.2f;
-double uw, uh, uw2, uh2; // normalised pixel dpi
 double ww, wh, ww2, wh2; 
+double uw, uh, uw2, uh2; // normalised pixel dpi
 
 // mouse input
 double x=0, y=0, sx=0, sy=0;
@@ -64,6 +64,9 @@ uint show_ui = 0;
 uint menu_focus = 0;
 uint seed_bits[27] = {0};
 uint uhi = 0;
+GLuint tex_menu;
+GLuint tex_mouse;
+double msx = -999;
 
 // joystick input
 uint doublestick = 0;
@@ -91,8 +94,6 @@ GLuint bindstate2 = 0; //Just for rTree() color array change
 //    on just three rPole calls.
 // Hindsight says, I could have reduced state changes more
 // but not significantly so, aka this is negligible.
-
-GLuint tex_menu;
 
 mat projection;
 mat view;
@@ -740,6 +741,35 @@ void rMenuHighlight(const GLfloat x, const GLfloat y)
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 }
 
+void rMenuMouse(const GLfloat x, const GLfloat y)
+{
+    shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+
+    mIdent(&modelview);
+    mTranslate(&modelview, x, y, -1.730f);
+    mScale(&modelview, uw*36.f, uh*27.f, 0);
+
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*)&projection.m[0][0]);
+    glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*)&modelview.m[0][0]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mdlPlane.tid);
+    glVertexAttribPointer(texcoord_id, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(texcoord_id);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex_mouse);
+    glUniform1i(sampler_id, 0);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mdlPlane.vid);
+    glVertexAttribPointer(position_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(position_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlPlane.iid);
+
+    glEnable(GL_BLEND);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+    glDisable(GL_BLEND);
+}
+
 void setBaseSensitivity()
 {
     if(zoom == -16.0f)
@@ -1080,7 +1110,7 @@ else if(t < hrt)
         double ry = uh2*-(y-wh2);
         rx += uw2*14;
         ry += uw2*14;
-        // rMenuHighlight(rx, ry);
+        //rMenuHighlight(rx, ry);
         menu_focus = 0;
 
         double xo = -172;
@@ -1110,6 +1140,49 @@ else if(t < hrt)
                 if(seed_bits[(i*9)+j] == 1)
                     rMenuHighlight(uw*ixo, uw*-iyo);
             }
+        }
+
+        //
+
+        shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+        //rMenuMouse(uw2*-162, uw2*80);
+        //printf("%.3f %.3f\n", rx, ry);
+        if(ry > 0.203 && ry < 0.279)
+        {
+            uint jammed = 0;
+            if(rx < (uw2*-162)+(uw2*14))
+            {
+                const double nx = uw2*-162;
+                rMenuMouse(nx, uw2*80);
+                msx = nx;
+                jammed = 1;
+            }
+            else if(rx > (uw2*162)+(uw2*14))
+            {
+                const double nx = uw2*162;
+                rMenuMouse(nx, uw2*80);
+                msx = nx;
+                jammed = 1;
+            }
+            if(jammed == 0)
+            {
+                const double nx = rx-(uw2*15);
+                rMenuMouse(nx, uw2*80);
+                msx = nx;
+            }
+
+            GLfloat ns = (GLfloat)( (msx+0.422)/0.844 );
+            if(ns <= 0.04f)
+                sens_mul = -(0.301f - (ns*7.5f));
+            else
+                sens_mul = ns;
+
+            setBaseSensitivity();
+            printf("Sens: %.3f\n", sens_mul);
+        }
+        else
+        {
+            rMenuMouse(msx, uw2*80);
         }
     }
 
@@ -1154,6 +1227,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         default:
         {
             show_ui = 1 - show_ui;
+            if(show_ui == 1)
+            {
+                msx = (sens_mul * 0.844) - 0.422;
+                if(msx > 0.422)
+                    msx = 0.422;
+                else if(msx <= -0.422)
+                    msx = -0.422;
+            }
 
             static uint sv = 0;
             if(show_ui == 1)
@@ -1393,6 +1474,7 @@ int main(int argc, char** argv)
     GLfloat plane_texc[] = {1.f,1.f, 0.f,0.f, 0.f,1.f, 1.f,0.f};
     esBind(GL_ARRAY_BUFFER, &mdlPlane.tid, plane_texc, sizeof(plane_texc), GL_STATIC_DRAW);
     tex_menu = esLoadTexture(menu_image.width, menu_image.height, &menu_image.pixel_data[0]);
+    tex_mouse = esLoadTextureA(mouse_image.width, mouse_image.height, &mouse_image.pixel_data[0]);
 
     // ***** BIND ICOGRID *****
     esBindModel(&mdlGrid, icogrid_vertices, icogrid_numvert, icogrid_indices, icogrid_numind);
