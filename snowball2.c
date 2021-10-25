@@ -3,7 +3,7 @@
         June 2020 - October 2021
 
     Two of the application 16x16 icons are from http://www.forrestwalter.com/icons/
-    A Helpful Colour Converter: https://www.easyrgb.com
+    A Helpful Colour Converter: https://www.easyrgb.com/en/convert.php
 
     I released the original game back in November 2020 as a webgl game:
     http://snowball.mobi
@@ -52,7 +52,8 @@ double t = 0;
 GLfloat aspect;
 GLfloat sens = 0.3f;
 GLfloat sens_mul = 0.2f;
-GLfloat uw, uh; // normalised pixel dpi
+double uw, uh, uw2, uh2; // normalised pixel dpi
+double ww, wh, ww2, wh2; 
 
 // mouse input
 double x=0, y=0, sx=0, sy=0;
@@ -60,6 +61,9 @@ uint md = 0;
 
 // ui
 uint show_ui = 0;
+uint menu_focus = 0;
+uint seed_bits[27] = {0};
+uint uhi = 0;
 
 // joystick input
 uint doublestick = 0;
@@ -236,20 +240,23 @@ void resetGame(char sf)
             gp[i] = ni;
     }
 
-    pscale = 1.0f;
+    if(sf != 4)
+    {
+        pscale = 1.0f;
 
-    mIdent(&view);
-    mIdent(&model);
-    mIdent(&modelview);
-    mIdent(&pm);
+        mIdent(&view);
+        mIdent(&model);
+        mIdent(&modelview);
+        mIdent(&pm);
 
-    xrot = 0;
-    yrot = 0;
+        xrot = 0;
+        yrot = 0;
 
-    const uint pstart = 330;
-    pp.x = icogrid_vertices[pstart];
-    pp.y = icogrid_vertices[pstart+1];
-    pp.z = icogrid_vertices[pstart+2];
+        const uint pstart = 330;
+        pp.x = icogrid_vertices[pstart];
+        pp.y = icogrid_vertices[pstart+1];
+        pp.z = icogrid_vertices[pstart+2];
+    }
 
     if(sf == 1 || sf == 3)
     {
@@ -299,7 +306,8 @@ void resetGame(char sf)
         glfwSetWindowTitle(window, title);
     }
 
-    sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
+    if(sf != 4)
+        sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
 }
 
 
@@ -636,10 +644,8 @@ void rSad(const GLfloat dt)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlSad.iid);
 
     glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
         glDrawElements(GL_TRIANGLES, sad_numind, GL_UNSIGNED_SHORT, 0);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
 }
 
 void rIntro(const GLfloat opacity)
@@ -712,6 +718,25 @@ void rHeart(const GLfloat opacity)
     glDisable(GL_BLEND);
 }
 
+void rMenuHighlight(const GLfloat x, const GLfloat y)
+{
+    mIdent(&modelview);
+    mTranslate(&modelview, x, y, -1.730f);
+    mScale(&modelview, uw*28.f, uh*28.f, 0);
+
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
+    glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
+    glUniform3f(color_id, 0.39608f, 0.70196f, 0.07059f);
+    glUniform1f(opacity_id, 1.0f);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mdlPlane.vid);
+    glVertexAttribPointer(position_id, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(position_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlPlane.iid);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+}
+
 void setBaseSensitivity()
 {
     if(zoom == -16.0f)
@@ -742,94 +767,96 @@ void main_loop()
 //*************************************
 // orbit / mouse control scaling
 //*************************************
-
-    if(md == 1)
-        glfwGetCursorPos(window, &x, &y);
-
-    double xd = (sx-x);
-    double yd = (sy-y);
-    //printf("%f %f | %f %f | %f %f\n", x, y, sx, sy, xd, yd);
-
-    if(glfwJoystickPresent(GLFW_JOYSTICK_1) == 1)
+    if(show_ui == 0)
     {
-        int count;
-        const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
-        if(count >= 2) // && fabs(axes[0]) > 0.00001f && fabs(axes[1]) > 0.00001f
-        {
-            xd = -axes[0]*50.f*ss1*sens;
-            yd = -axes[1]*50.f*ss1*sens;
-            //printf("%f %f\n", axes[0], axes[1]);
-        }
-        if(doublestick == 1)
-        {
-            xd += -axes[3]*50.f*ss2*sens;
-            yd += -axes[4]*50.f*ss2*sens;
-            //printf("%f %f\n", axes[3], axes[4]);
-        }
+        if(md == 1)
+            glfwGetCursorPos(window, &x, &y);
 
-        static float bt = 0;
-        if(t > bt)
+        double xd = (sx-x);
+        double yd = (sy-y);
+        //printf("%f %f | %f %f | %f %f\n", x, y, sx, sy, xd, yd);
+
+        if(glfwJoystickPresent(GLFW_JOYSTICK_1) == 1)
         {
-            const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
-            if(count >= 3)
+            int count;
+            const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
+            if(count >= 2) // && fabs(axes[0]) > 0.00001f && fabs(axes[1]) > 0.00001f
             {
-                if(buttons[0] == GLFW_PRESS)
+                xd = -axes[0]*50.f*ss1*sens;
+                yd = -axes[1]*50.f*ss1*sens;
+                //printf("%f %f\n", axes[0], axes[1]);
+            }
+            if(doublestick == 1)
+            {
+                xd += -axes[3]*50.f*ss2*sens;
+                yd += -axes[4]*50.f*ss2*sens;
+                //printf("%f %f\n", axes[3], axes[4]);
+            }
+
+            static float bt = 0;
+            if(t > bt)
+            {
+                const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &count);
+                if(count >= 3)
                 {
-                    sens_mul -= 0.03f;
-                    setBaseSensitivity();
-                    printf("Sens: %.3f\n", sens_mul);
-                    bt = t + 0.3f;
-                }
-                else if(buttons[1] == GLFW_PRESS)
-                {
-                    sens_mul += 0.03f;
-                    setBaseSensitivity();
-                    printf("Sens: %.3f\n", sens_mul);
-                    bt = t + 0.3f;
-                }
-                else if(buttons[2] == GLFW_PRESS || buttons[9] == GLFW_PRESS || buttons[10] == GLFW_PRESS)
-                {
-                    if(zoom == -20.0f)
+                    if(buttons[0] == GLFW_PRESS)
                     {
-                        zoom = -16.0f;
+                        sens_mul -= 0.03f;
                         setBaseSensitivity();
-                        sport = 0;
+                        printf("Sens: %.3f\n", sens_mul);
+                        bt = t + 0.3f;
                     }
-                    else if(zoom == -16.0f)
+                    else if(buttons[1] == GLFW_PRESS)
                     {
-                        zoom = -26.0f;
+                        sens_mul += 0.03f;
                         setBaseSensitivity();
-                        sport = 0;
+                        printf("Sens: %.3f\n", sens_mul);
+                        bt = t + 0.3f;
                     }
-                    else if(zoom == -26.0f)
+                    else if(buttons[2] == GLFW_PRESS || buttons[9] == GLFW_PRESS || buttons[10] == GLFW_PRESS)
                     {
-                        zoom = -27.0f;
-                        setBaseSensitivity();
-                        sport = 1;
+                        if(zoom == -20.0f)
+                        {
+                            zoom = -16.0f;
+                            setBaseSensitivity();
+                            sport = 0;
+                        }
+                        else if(zoom == -16.0f)
+                        {
+                            zoom = -26.0f;
+                            setBaseSensitivity();
+                            sport = 0;
+                        }
+                        else if(zoom == -26.0f)
+                        {
+                            zoom = -27.0f;
+                            setBaseSensitivity();
+                            sport = 1;
+                        }
+                        else if(zoom == -27.0)
+                        {
+                            zoom = -20.0f;
+                            setBaseSensitivity();
+                            sport = 0;
+                        }
+                        bt = t + 0.3f;
                     }
-                    else if(zoom == -27.0)
-                    {
-                        zoom = -20.0f;
-                        setBaseSensitivity();
-                        sport = 0;
-                    }
-                    bt = t + 0.3f;
                 }
             }
         }
+
+        xrot += xd*sens;
+        yrot += yd*sens;
+
+        // prevent pole inversion
+        if(yrot > 180.0f)
+            yrot = 180.0f;
+        if(yrot < -0.0f)
+            yrot = -0.0f;
+        
+        if(md == 1)
+            glfwSetCursorPos(window, sx, sy);
     }
-
-    xrot += xd*sens;
-    yrot += yd*sens;
-
-    // prevent pole inversion
-    if(yrot > 180.0f)
-        yrot = 180.0f;
-    if(yrot < -0.0f)
-        yrot = -0.0f;
-    
-    if(md == 1)
-        glfwSetCursorPos(window, sx, sy);
 
 //*************************************
 // camera control
@@ -1011,8 +1038,13 @@ else if(t < hrt)
 //*************************************
 // Draw UI
 //*************************************
+
     if(show_ui == 1)
     {
+        glfwGetCursorPos(window, &x, &y);
+
+        //
+
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
 
         mIdent(&modelview);
@@ -1036,6 +1068,45 @@ else if(t < hrt)
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mdlPlane.iid);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+
+        //
+        
+        shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
+
+        double rx = uw2*(x-ww2);
+        double ry = uh2*-(y-wh2);
+        rx += uw2*14;
+        ry += uw2*14;
+        // rMenuHighlight(rx, ry);
+
+        double xo = -172;
+        double yo = -92;
+        for(uint i = 0; i < 3; i++)
+        {
+            double iyo = yo + (62 * i);
+            if(i == 0)
+                iyo -= 1.5;
+            else if(i == 1)
+                iyo -= 1.5;
+            for(uint j = 0; j < 9; j++)
+            {
+                double ixo = xo + (62 * j);
+                if(j > 5)
+                    ixo += 8;
+                else if(j > 2)
+                    ixo += 4;
+
+                //rMenuHighlight(uw*ixo, uw*-iyo);
+                if(rx > uw*ixo && rx < uw*(ixo+59) && ry > uh*-iyo && ry < uh*(-iyo+59))
+                {
+                    rMenuHighlight(uw*ixo, uw*-iyo);
+                    uhi = (i*9)+j;
+                    menu_focus = 1;
+                }
+                if(seed_bits[(i*9)+j] == 1)
+                    rMenuHighlight(uw*ixo, uw*-iyo);
+            }
+        }
     }
 
 //*************************************
@@ -1048,29 +1119,6 @@ else if(t < hrt)
 //*************************************
 // Input Handelling
 //*************************************
-uint cycle_window = 0;
-void setBorderMode(uint state)
-{
-    if(state == 1)
-    {
-        glfwWindowHint(GLFW_SAMPLES, 0);
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-        zoom = -28.0f;
-        cycle_window = 1;
-    }
-    else
-    {
-        glfwWindowHint(GLFW_SAMPLES, 16);
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 0);
-        glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
-        zoom = -20.0f;
-        if(aspect < 1.0f)
-            zoom = -26.0f;
-        cycle_window = 1;
-    }
-}
-
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if(action != GLFW_PRESS){return;}
@@ -1110,11 +1158,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             }
             else
             {
+                x = winw/2, y = winh/2;
+                sx = x, sy = y;
                 if(sv == 1)
                 {
-                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-                    x = winw/2, y = winh/2;
                     glfwSetCursorPos(window, x, y);
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
                     sx = x, sy = y;
                     md = 1;
                 }
@@ -1128,40 +1177,56 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if(button == GLFW_MOUSE_BUTTON_LEFT)
     {
-        if(action == GLFW_PRESS && show_ui == 0)
+        if(action == GLFW_PRESS)
         {
-            if(md == 0)
+            if(show_ui == 0)
             {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-                x = winw/2, y = winh/2;
-                glfwSetCursorPos(window, x, y);
-                sx = x, sy = y;
-                md = 1;
+                if(md == 0)
+                {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                    x = winw/2, y = winh/2;
+                    glfwSetCursorPos(window, x, y);
+                    sx = x, sy = y;
+                    md = 1;
+                }
+                else
+                {
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                    sx = x, sy = y;
+                    md = 0;
+                }
             }
             else
             {
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                sx = x, sy = y;
-                md = 0;
+                if(menu_focus == 1)
+                {
+                    seed_bits[uhi] = 1 - seed_bits[uhi];
+                    seed = 1337;
+                    for(int i = 0; i < 27; i++)
+                        seed ^= seed_bits[i] << i;
+                    printf("Seed: %u\n", seed);
+                    srand(seed);
+                    resetGame(4);
+                }
             }
         }
     }
 
-    if(button == GLFW_MOUSE_BUTTON_4 && action == GLFW_PRESS)
+    if(button == GLFW_MOUSE_BUTTON_4 && action == GLFW_PRESS && show_ui == 0)
     {
         sens_mul -= 0.1f;
         setBaseSensitivity();
         printf("Sens: %.3f\n", sens_mul);
     }
     
-    if(button == GLFW_MOUSE_BUTTON_5 && action == GLFW_PRESS)
+    if(button == GLFW_MOUSE_BUTTON_5 && action == GLFW_PRESS && show_ui == 0)
     {
         sens_mul += 0.1f;
         setBaseSensitivity();
         printf("Sens: %.3f\n", sens_mul);
     }
 
-    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS)
+    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && show_ui == 0)
     {
         if(zoom == -20.0f)
         {
@@ -1201,8 +1266,14 @@ void window_size_callback(GLFWwindow* window, int width, int height)
 
     glViewport(0, 0, winw, winh);
     aspect = (GLfloat)winw / (GLfloat)winh;
-    uw = aspect / (GLfloat)winw;
-    uh = 1.f / (GLfloat)winh;
+    ww = winw;
+    wh = winh;
+    ww2 = ww/2;
+    wh2 = wh/2;
+    uw = (double)aspect / ww;
+    uh = 1 / wh;
+    uw2 = (double)aspect / ww2;
+    uh2 = 1 / wh2;
 
     mIdent(&projection);
     mPerspective(&projection, 60.0f, aspect, 1.0f, 60.0f); 
