@@ -1,0 +1,47 @@
+name: snowball
+base: core18
+version: '2.00'
+summary: A novel speed run game akin to a platform loop/buzz wire game.
+description: |
+  You have to roll around collecting snow and avoiding trees until your snowball is large enough to continue to the next level.
+
+  Once you have accumulated a large enough snowball, the poles will turn into teleportation pads to the next round; the aim is to complete each level or a sequence of levels with the highest score in the shortest time.
+
+  The larger the snowballs you collect higher the score. Gold snow is double the reward of white.
+  Picking up snow increases your speed temporarily; the idea is to enter a flow of collecting snow so that your speed stays up.
+
+  Try not to hit the trees as they will slow you down and reduce the mass of your snowball, unless your snowball is large enough to consume them, then they slow you down but also add to the mass of your snowball. Trees will shrink slightly as you approach them to show that they can be consumed.
+
+  Your score is updated in the program title bar at the end of each level.
+
+  A web version for mobile is available at: http://snowball.mobi
+
+grade: stable
+confinement: strict
+
+icon: snowball.png
+
+architectures:
+  - build-on: amd64
+    run-on: amd64
+  - build-on: arm64
+    run-on: arm64
+  - build-on: armhf
+    run-on: armhf
+
+apps:
+  snowball:
+    extensions: [gnome-3-34]
+    command: snowball
+
+parts:
+  snowball:
+    source: https://github.com/mrbid/SNOWBALL2
+    source-type: git
+    plugin: make
+    build-packages:
+    - libglfw3-dev
+    stage-packages:
+    - libglfw3
+    - libgles2
+    
