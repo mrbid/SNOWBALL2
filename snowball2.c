@@ -2,6 +2,8 @@
     James William Fletcher (james@voxdsp.com)
         June 2020 - October 2021
 
+    It's all to the GLES 2.0 spec for portability.
+
     Two of the application 16x16 icons are from http://www.forrestwalter.com/icons/
     A Helpful Colour Converter: https://www.easyrgb.com/en/convert.php
 
@@ -67,9 +69,11 @@ uint uhi = 0;
 GLuint tex_menu;
 GLuint tex_mouse;
 double msx = -999;
+double js1 = -999;
+double js2 = -999;
 
 // joystick input
-uint doublestick = 0;
+uint doublestick = 1;
 GLfloat ss1 = 1.f;
 GLfloat ss2 = 1.5f;
 
@@ -823,14 +827,30 @@ void main_loop()
             const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &count);
             if(count >= 2) // && fabs(axes[0]) > 0.00001f && fabs(axes[1]) > 0.00001f
             {
-                xd = -axes[0]*50.f*ss1*sens;
-                yd = -axes[1]*50.f*ss1*sens;
+                if(sens < 0.f)
+                {
+                    xd = axes[0]*50.f*ss1*sens;
+                    yd = axes[1]*50.f*ss1*sens;
+                }
+                else
+                {
+                    xd = -axes[0]*50.f*ss1*sens;
+                    yd = -axes[1]*50.f*ss1*sens;
+                }
                 //printf("%f %f\n", axes[0], axes[1]);
             }
             if(doublestick == 1)
             {
-                xd += -axes[3]*50.f*ss2*sens;
-                yd += -axes[4]*50.f*ss2*sens;
+                if(sens < 0.f)
+                {
+                    xd += axes[3]*50.f*ss2*sens;
+                    yd += axes[4]*50.f*ss2*sens;
+                }
+                else
+                {
+                    xd += -axes[3]*50.f*ss2*sens;
+                    yd += -axes[4]*50.f*ss2*sens;
+                }
                 //printf("%f %f\n", axes[3], axes[4]);
             }
 
@@ -1088,7 +1108,7 @@ else if(t < hrt)
     {
         glfwGetCursorPos(window, &x, &y);
 
-        //
+        // DRAW MENU BG
 
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
 
@@ -1114,7 +1134,7 @@ else if(t < hrt)
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
 
-        //
+        // DRAW SEED SELECTOR
         
         shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
 
@@ -1154,40 +1174,45 @@ else if(t < hrt)
             }
         }
 
-        //
+        // DRAW SENSITIVITY SLIDERS
 
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
         //rMenuMouse(uw2*-162, uw2*80);
         //printf("%.3f %.3f\n", rx, ry);
-        if(ry > 0.203 && ry < 0.279)
+
+        // master sensitivity
+        if(ry > uh2*77 && ry < uh2*107 && rx > uw2*-162 && rx < uw2*194)
         {
             uint jammed = 0;
             if(rx < (uw2*-162)+(uw2*14))
             {
                 const double nx = uw2*-162;
-                rMenuMouse(nx, uw2*80);
+                rMenuMouse(nx, uh2*80);
                 msx = nx;
                 jammed = 1;
             }
             else if(rx > (uw2*162)+(uw2*14))
             {
                 const double nx = uw2*162;
-                rMenuMouse(nx, uw2*80);
+                rMenuMouse(nx, uh2*80);
                 msx = nx;
                 jammed = 1;
             }
             if(jammed == 0)
             {
                 const double nx = rx-(uw2*15);
-                rMenuMouse(nx, uw2*80);
+                rMenuMouse(nx, uh2*80);
                 msx = nx;
             }
+            //printf("%.3f\n", msx);
 
-            GLfloat ns = (GLfloat)( (msx+0.422)/0.844 );
-            if(ns <= 0.04f)
-                sens_mul = -(0.301f - (ns*7.5f));
+            const GLfloat mb = uw2*162.f;
+            GLfloat ns = (GLfloat)( (msx+mb)/(mb*2.f) );
+            if(ns <= 0.077f)
+                sens_mul = -(0.3f - (ns*7.5f));
             else
                 sens_mul = ns;
+            //printf("%.3f %.3f %.3f\n", msx, sens_mul, mb);
 
             setBaseSensitivity();
 
@@ -1204,7 +1229,101 @@ else if(t < hrt)
         }
         else
         {
-            rMenuMouse(msx, uw2*80);
+            rMenuMouse(msx, uh2*80);
+        }
+
+        // joy1 sensitivity
+        if(ry > uh2*-51 && ry < uh2*-21 && rx > uw2*-50 && rx < uw2*194)
+        {
+            uint jammed = 0;
+            if(rx < (uw2*-49.8)+(uw2*14))
+            {
+                const double nx = uw2*-49.8;
+                rMenuMouse(nx, uh2*-48);
+                js1 = nx;
+                jammed = 1;
+            }
+            else if(rx > (uw2*162)+(uw2*14))
+            {
+                const double nx = uw2*162;
+                rMenuMouse(nx, uh2*-48);
+                js1 = nx;
+                jammed = 1;
+            }
+            if(jammed == 0)
+            {
+                const double nx = rx-(uw2*15);
+                rMenuMouse(nx, uh2*-48);
+                js1 = nx;
+            }
+
+            const GLfloat lmb = uw2*50.f;
+            const GLfloat rmb = uw2*162.f;
+            GLfloat ns = (GLfloat)( (js1+lmb)/(lmb+rmb) );
+            ss1 = ns*2.f;
+            //printf("%.3f %.3f %.3f %.3f\n", js1, ss1, lmb, rmb);
+
+            static double tc = 0;
+            static GLfloat tls = 0;
+            if(t > tc && tls != ss1)
+            {
+                char strts[16];
+                timestamp(&strts[0]);
+                printf("[%s] JS1 Sens: %.3f\n", strts, ss1);
+                tls = ss1;
+                tc = t+0.1;
+            }
+        }
+        else
+        {
+            rMenuMouse(js1, uh2*-48);
+        }
+
+        // joy2 sensitivity
+        if(ry > uh2*-81 && ry < uh2*-53 && rx > uw2*-50 && rx < uw2*194)
+        {
+            uint jammed = 0;
+            if(rx < (uw2*-49.8)+(uw2*14))
+            {
+                const double nx = uw2*-49.8;
+                rMenuMouse(nx, uh2*-79);
+                js2 = nx;
+                jammed = 1;
+            }
+            else if(rx > (uw2*162)+(uw2*14))
+            {
+                const double nx = uw2*162;
+                rMenuMouse(nx, uh2*-79);
+                js2 = nx;
+                jammed = 1;
+            }
+            if(jammed == 0)
+            {
+                const double nx = rx-(uw2*15);
+                rMenuMouse(nx, uh2*-79);
+                js2 = nx;
+            }
+
+            const GLfloat lmb = uw2*50.f;
+            const GLfloat rmb = uw2*162.f;
+            GLfloat ns = (GLfloat)( (js2+lmb)/(lmb+rmb) );
+            ss2 = ns*2.f;
+            //printf("%.3f %.3f %.3f %.3f\n", js1, ss1, lmb, rmb);
+
+            static double tc = 0;
+            static GLfloat tls = 0;
+            if(t > tc && tls != ss2)
+            {
+                char strts[16];
+                timestamp(&strts[0]);
+                printf("[%s] JS2 Sens: %.3f\n", strts, ss2);
+                tls = ss2;
+                tc = t+0.1;
+            }
+        }
+        else
+        {
+            rMenuMouse(js2, uh2*-79);
         }
     }
 
@@ -1248,16 +1367,34 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
         default:
         {
+            // toggle ui
             show_ui = 1 - show_ui;
             if(show_ui == 1)
             {
-                msx = (sens_mul * 0.844) - 0.422;
-                if(msx > 0.422)
-                    msx = 0.422;
-                else if(msx <= -0.422)
-                    msx = -0.422;
+                // set master sense pos
+                const GLfloat mb = uw2*162.f;
+                msx = (sens_mul * (mb*2.f)) - mb;
+                if(msx > mb)
+                    msx = mb;
+                else if(msx <= -mb)
+                    msx = -mb;
+
+                // set joy 1&2 sense pos
+                const GLfloat lmb = uw2*50.f;
+                const GLfloat rmb = uw2*162.f;
+                js1 = ((ss1*0.5f) * (lmb+rmb)) - lmb;
+                if(js1 > rmb)
+                    js1 = rmb;
+                else if(js1 <= -lmb)
+                    js1 = -lmb;
+                js2 = ((ss2*0.5f) * (lmb+rmb)) - lmb;
+                if(js2 > rmb)
+                    js2 = rmb;
+                else if(js2 <= -lmb)
+                    js2 = -lmb;
             }
 
+            // restore game mouse focus state
             static uint sv = 0;
             if(show_ui == 1)
             {
