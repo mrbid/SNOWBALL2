@@ -40,6 +40,8 @@ When a joystick is connected to the computer the mouse is disabled, the joystick
 - Inverting individual sticks rather than both at the same time.
 - Inverting on an axial basis, os only horizontal or vertical invert.
 
+Honestly I don't even know how anyone could play this with inverted sticks, let alone one stick inverted and one not, or one axis inverted etc. Hence not adding this feature, seems like unnecessary complexity for the UI. Although I could add this functionality as command line arguments or via a configuration script in the future if desired.
+
 ## TODO
 - Audio system
 - Particle effects
