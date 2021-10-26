@@ -1,5 +1,55 @@
 # SNOWBALL2
-The GLFW version of Snowball.mobi with MSAA.
+The GLFW version of Snowball.mobi with MSAA. A novel speed run game akin to a platform loop/buzz wire game.
+
+### How to play
+
+You have to roll around collecting snow and avoiding trees until your snowball is large enough to continue to the next level.
+
+Once you have accumulated a large enough snowball, the poles _(obelisks)_ will turn into teleportation pads to the next round; the aim is to complete each level or a sequence of levels with the highest score in the shortest time.
+
+The larger the snowballs you collect higher the score. Gold snow is double the reward of white. **Picking up snow increases your speed temporarily; the idea is to enter a flow of collecting snow so that your speed stays up.**
+
+Try not to hit the trees as they will slow you down and reduce the mass of your snowball, unless your snowball is large enough to consume them, then they slow you down but also add to the mass of your snowball. Trees will shrink slightly as you approach them to show that they can be consumed.
+
+Your score is updated in the program title bar at the end of each level.
+
+---
+
+### Mouse Controls
+```
+Mouse 1 (Left)  = Toggle Control
+Mouse 2 (Right) = Change View
+Mouse X1        = Decrease mouse speed
+Mouse X2        = Increase mouse speed
+```
+
+---
+
+### Video
+https://youtu.be/oOmu1vtLsik
+
+---
+
+### Snapcraft / Software Center
+https://snapcraft.io/snowball
+
+---
+
+### Compile & Install
+```
+gcc main.c -Ofast -lSDL2 -lGLESv2 -lEGL -lm -o snowball
+sudo cp snowball /usr/bin/snowball
+```
+
+---
+
+### Make & Install
+```
+make
+sudo make install /usr/bin
+```
+
+---
 
 This is probably going to be a slow progress project as it's not a priority or a passion project of mine at the moment, essentially I wanted to try out [GLFW](https://www.glfw.org/) and decided that porting [Snowball.mobi](https://github.com/mrbid/Snowball.mobi) to GLFW would be a good test case.
 
@@ -56,3 +106,11 @@ For anyone confused by that terminology ([ref](https://www.merriam-webster.com/w
 
 ## Linux Binary
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
+
+---
+
+### Attributions
+https://www.thingiverse.com/thing:946172<br>
+http://www.forrestwalter.com/icons/<br>
+https://www.flaticon.com/free-icon/computer-mouse_1385<br>
+https://www.shutterstock.com/image-illustration/tree-growth-diagram-green-leaf-nature-1299130129<br>
