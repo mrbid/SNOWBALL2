@@ -144,7 +144,7 @@ uint seed = 1337;
 double score = 0.f;
 GLfloat drag = 0.0023f;
 GLfloat maxspeed = 0.f;
-const GLfloat minspeed = 0.22f;
+#define minspeed 0.22f
 GLfloat start = 0;
 uint psw = 0;
 vec pp;
