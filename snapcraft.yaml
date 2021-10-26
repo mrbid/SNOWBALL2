@@ -19,8 +19,6 @@ description: |
 grade: stable
 confinement: strict
 
-icon: snowball.png
-
 architectures:
   - build-on: amd64
     run-on: amd64
