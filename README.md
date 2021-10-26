@@ -37,7 +37,7 @@ When using joystick mode, the input/mouse sensitivity becomes a master input sen
 When a joystick is connected to the computer the mouse is disabled, the joystick takes priority, but hotswapping is allowed, so just unplug from the USB port to get the mouse back.
 
 **Possible additions:**
-- Inverting individual sticks rather than both at the same time
+- Inverting individual sticks rather than both at the same time.
 - Inverting on an axial basis, os only horizontal or vertical invert.
 
 ## TODO
