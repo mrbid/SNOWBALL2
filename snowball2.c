@@ -321,6 +321,9 @@ void resetGame(char sf)
         char title[256];
         sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
         glfwSetWindowTitle(window, title);
+        char strts[16];
+        timestamp(&strts[0]);
+        printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
     }
 
     sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
@@ -1371,6 +1374,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             show_ui = 1 - show_ui;
             if(show_ui == 1)
             {
+                char strts[16];
+                timestamp(&strts[0]);
+                printf("[%s] Menu Opened.\n", strts);
+
                 // set master sense pos
                 const GLfloat mb = uw2*162.f;
                 msx = (sens_mul * (mb*2.f)) - mb;
@@ -1392,6 +1399,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
                     js2 = rmb;
                 else if(js2 <= -lmb)
                     js2 = -lmb;
+            }
+            else
+            {
+                char strts[16];
+                timestamp(&strts[0]);
+                printf("[%s] Menu Closed.\n", strts);
             }
 
             // restore game mouse focus state
@@ -1719,11 +1732,16 @@ int main(int argc, char** argv)
         {
             char strts[16];
             timestamp(&strts[0]);
-            printf("[%s] FPS: %.0f\n", strts, fc/16);
+            printf("[%s] FPS: %f\n", strts, fc/16);
             fc = 0;
             lt = t + 16;
         }
     }
+
+    // final score
+    char strts[16];
+    timestamp(&strts[0]);
+    printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
 
     // done
     glfwDestroyWindow(window);
