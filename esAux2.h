@@ -3,11 +3,11 @@
     James William Fletcher (james@voxdsp.com)
         October 2021 - esAux2.h v2.0
 --------------------------------------------------
-    
+
     Requires:
         - vec.h:        https://gist.github.com/mrbid/77a92019e1ab8b86109bf103166bd04e
         - mat.h:        https://gist.github.com/mrbid/cbc69ec9d99b0fda44204975fcbeae7c
-    
+
     v2.0:
         - added support for fullbright texture mapping
 
@@ -54,6 +54,7 @@ GLfloat esRandFloat(const GLfloat min, const GLfloat max);
 void esBind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage);
 void esBindModel(ESModel* model, const GLfloat* vertices, const GLsizei vertlen, const GLushort* indices, const GLsizei indlen);
 GLuint esLoadTexture(const GLuint w, const GLuint h, const unsigned char* data);
+GLuint esLoadTextureA(const GLuint w, const GLuint h, const unsigned char* data);
 
 //*************************************
 // SHADER
@@ -133,6 +134,18 @@ GLuint esLoadTexture(const GLuint w, const GLuint h, const unsigned char* data)
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+   return textureId;
+}
+
+GLuint esLoadTextureA(const GLuint w, const GLuint h, const unsigned char* data)
+{
+   GLuint textureId;
+   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+   glGenTextures(1, &textureId);
+   glBindTexture(GL_TEXTURE_2D, textureId);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
    return textureId;
 }
 
