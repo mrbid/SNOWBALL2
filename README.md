@@ -27,7 +27,7 @@ Mouse X2        = Increase mouse speed
 
 ### Keyboard Mappings
 ```
-ESCAPE = Close Game
+ESCAPE        = Close Game
 Any other key = Toggle Menu
 ```
 
