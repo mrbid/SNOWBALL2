@@ -5,8 +5,8 @@
 --------------------------------------------------
 
     Requires:
-        - vec.h:        https://gist.github.com/mrbid/77a92019e1ab8b86109bf103166bd04e
-        - mat.h:        https://gist.github.com/mrbid/cbc69ec9d99b0fda44204975fcbeae7c
+        - vec.h: https://gist.github.com/mrbid/77a92019e1ab8b86109bf103166bd04e
+        - mat.h: https://gist.github.com/mrbid/cbc69ec9d99b0fda44204975fcbeae7c
 
     v2.0:
         - added support for fullbright texture mapping
