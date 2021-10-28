@@ -119,7 +119,7 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 
 ### Lore
 
-I wanted to create something that had that Windows 3.1 [Ski Free](https://en.wikipedia.org/wiki/SkiFree) simplicity, but without the scary monster and the pooping dogs. I had always liked simple puzzle games such as [Neverball](https://neverball.org/) and wanted to go in this kind of direction, and really Snowball is the product of these two games combined. It's the simplicity and style of Ski Free in 3D with the sphere centric concept of Neverball. Snowball itself is designed to be a competitive speed run game, or just something to play when you want to kill time. Snowball produces console output which can be used in competitive games where players compete against one another in a given period of time.
+I wanted to create something that had that Windows 3.1 [Ski Free](https://en.wikipedia.org/wiki/SkiFree) simplicity, but without the scary monster and the pooping dogs. I had always liked simple puzzle games such as [Neverball](https://neverball.org/) and wanted to go in this kind of direction, and really in a way Snowball is the product of these two games combined. It's the simplicity and style of Ski Free in 3D with the sphere centric concept of Neverball. Snowball itself is designed to be a competitive speed run game, or just something to play when you want to kill time. Snowball produces console output which can be used in competitive games where players compete against one another in a given period of time.
 
 ---
 
