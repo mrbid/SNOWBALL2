@@ -1,6 +1,6 @@
 name: snowball
 base: core20
-version: '2.00'
+version: '2.01'
 summary: A novel speed run game akin to a platform loop/buzz wire game.
 description: |
   You have to roll around collecting snow and avoiding trees until your snowball is large enough to continue to the next level.
