@@ -639,7 +639,7 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
     if(sport == 0)
         glUniform3f(color_id, pr, pg, pb);
     else
-        glUniform3f(color_id, 0.54118f, 0.16863f, 0.88627f);
+        glUniform3f(color_id, 0.753874f, 0.329309f, 0.896980f);
     glUniform1f(opacity_id, 1.0f);
     glDrawElements(GL_TRIANGLES, icosmooth2_numind, GL_UNSIGNED_SHORT, 0);
 }
@@ -1373,7 +1373,9 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         //     // setBorderMode(nb);
         //     // nb = 1 - nb;
 
-        //     //resetGame(2);
+        //     resetGame(2);
+        //     sround = 0;
+        //     printf("%f, %f, %f\n", pr, pg, pb);
         // }
         // break;
 
