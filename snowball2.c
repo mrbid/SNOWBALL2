@@ -1603,6 +1603,7 @@ int main(int argc, char** argv)
     printf("SEED: %u\n", seed);
     printf("MSAA: %u\n", msaa);
     printf("NoBorder: %u\n", noborder);
+    if(noborder == 1){winh = winw;}
     printf("Resolution: %ux%u\n", winw, winh);
     printf("Master Sensitivity: %.3f\n", sens_mul);
     printf("DoubleStick: %u\n", doublestick);
@@ -1614,14 +1615,9 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     if(noborder == 1)
-    {
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
-        winh = winw;
-    }
     else
-    {
         glfwWindowHint(GLFW_SAMPLES, msaa);
-    }
     window = glfwCreateWindow(winw, winh, "Snowball.mobi", NULL, NULL);
     if(!window)
     {
