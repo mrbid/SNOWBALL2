@@ -607,29 +607,41 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
     if(t < sround)
     {
         if(sport == 0)
-        {
             glUniform3f(color_id, 0.50588f, 0.84705f, 1.0f);
-            glUniform1f(opacity_id, 0.5f);
-        }
         else
-        {
-            glUniform3f(color_id, 0.25f, 0.25f, 0.25f);
-            glUniform1f(opacity_id, 1.0f);
-        }
+            glUniform3f(color_id, 0.54118f, 0.16863f, 0.88627f);
+        glUniform1f(opacity_id, 0.5f);
         glEnable(GL_BLEND);
         glDrawElements(GL_TRIANGLES, icosmooth2_numind, GL_UNSIGNED_SHORT, 0);
         glDisable(GL_BLEND);
-    }
-    else
-    {
-        if(sport == 0)
-            glUniform3f(color_id, pr, pg, pb);
-        else
-            glUniform3f(color_id, 0.f, 0.f, 0.f);
-        glUniform1f(opacity_id, 1.0f);
-        glDrawElements(GL_TRIANGLES, icosmooth2_numind, GL_UNSIGNED_SHORT, 0);
+        return;
     }
 
+    // indicate round complete
+    if(pscale >= msca)
+    {
+        const float peelspeed = 0.03f;
+        static float r=0.349f, g=0.773f, b=0.471f, inv=1.f;
+        r += peelspeed * dt * inv;
+        g += peelspeed * dt * inv;
+        b += peelspeed * dt * inv;
+        if(g > 1.f)
+            inv = -1.f;
+        else if(g < 0.773f)
+            inv = 1.f;
+        glUniform3f(color_id, r, g, b);
+        glUniform1f(opacity_id, 1.0f);
+        glDrawElements(GL_TRIANGLES, icosmooth2_numind, GL_UNSIGNED_SHORT, 0);
+        return;
+    }
+
+    // normal colouring
+    if(sport == 0)
+        glUniform3f(color_id, pr, pg, pb);
+    else
+        glUniform3f(color_id, 0.54118f, 0.16863f, 0.88627f);
+    glUniform1f(opacity_id, 1.0f);
+    glDrawElements(GL_TRIANGLES, icosmooth2_numind, GL_UNSIGNED_SHORT, 0);
 }
 
 void rSad(const GLfloat dt)
@@ -1051,7 +1063,7 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
         if(sport == 0)
             rSphere(sp[i], qRandFloatSeed(seed+sp[i]+level, 0.5f, 1.0f), 1.0f, 1.0f, 1.0f);
         else
-            rSphere(sp[i], qRandFloatSeed(seed+sp[i]+level, 0.5f, 1.0f), 0.f, 0.f, 1.0f);
+            rSphere(sp[i], qRandFloatSeed(seed+sp[i]+level, 0.5f, 1.0f), 0.f, 1.f, 1.f);
     }
 
     for(int i = 0; i < max_gold; i++)
@@ -1354,11 +1366,14 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         //     // pscale += 1.f;
         //     // msca = pscale;
 
+        //     // pscale = msca;
+        //     // sround = 0;
+
         //     // static uint nb = 1;
         //     // setBorderMode(nb);
         //     // nb = 1 - nb;
 
-        //     resetGame(2);
+        //     //resetGame(2);
         // }
         // break;
 
@@ -1555,7 +1570,8 @@ int main(int argc, char** argv)
     if(argc >= 2){seed = atof(argv[1]);}
     if(argc >= 3){msaa = atoi(argv[2]);}
     if(argc >= 4){noborder = atoi(argv[3]);}
-    if(argc >= 6){winw = atoi(argv[4]);winh = atoi(argv[5]);}
+    if(argc >= 5){winw = atoi(argv[4]);}
+    if(argc >= 6){winh = atoi(argv[5]);}
     if(argc >= 7){sens_mul = atof(argv[6]);}
     if(argc >= 8){doublestick = atoi(argv[7]);}
     if(argc >= 9){ss1 = atof(argv[8]);}
@@ -1596,9 +1612,14 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     if(noborder == 1)
+    {
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
+        winh = winw;
+    }
     else
+    {
         glfwWindowHint(GLFW_SAMPLES, msaa);
+    }
     window = glfwCreateWindow(winw, winh, "Snowball.mobi", NULL, NULL);
     if(!window)
     {
