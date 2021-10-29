@@ -141,7 +141,7 @@ uint level = 0;
 uint sport = 0;
 uint rounds = 33;
 uint seed = 1337;
-double score = 0.f;
+double points = 0.f;
 GLfloat drag = 0.0023f;
 GLfloat maxspeed = 0.f;
 #define minspeed 0.22f
@@ -288,7 +288,7 @@ void resetGame(char sf)
         ps = minspeed;
         psw = 0;
         msca = 6.0f;
-        score = 0;
+        points = 0;
         start = t;
     }
     else if(sf == 0)
@@ -319,11 +319,11 @@ void resetGame(char sf)
         msca += 0.33f;
         
         char title[256];
-        sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+        sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, points, ((double)(t-start))/60.0, (points / sqrt(t-start))*100);
         glfwSetWindowTitle(window, title);
         char strts[16];
         timestamp(&strts[0]);
-        printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+        printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, points, ((double)(t-start))/60.0, (points / sqrt(t-start))*100);
     }
 
     sround = t + 6.0; //Immune from tree's in the first 6 seconds of a round starting
@@ -820,8 +820,8 @@ void main_loop()
     static double lt = 0;
     double deltaTime = (t-lt)*15.0;
     //printf("%f\n", deltaTime);
-    if(deltaTime > 1.0)
-        deltaTime = 1.0;
+    // if(deltaTime > 1.0)
+    //     deltaTime = 1.0;
     lt = t;
 
 //*************************************
@@ -1025,7 +1025,29 @@ shadeLambert3(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
                 ns *= 0.5f;
             if(distance(pp, tp[i]) <= pscale*0.1)
             {
-                ps -= 0.12f; // hitting a tree is always bad for speed
+                static double lt = 0;
+                if(t > lt)
+                {
+                    if(ns == 1.6f)
+                    {
+                        ps -= ps * 0.43f;
+                        char strts[16];
+                        timestamp(&strts[0]);
+                        if(ps < minspeed){ps = minspeed;}
+                        printf("[%s] Big Tree Collision: %.3f\n", strts, ps);
+                    }
+                    else
+                    {
+                        ps -= ps * 0.2f;
+                        char strts[16];
+                        timestamp(&strts[0]);
+                        if(ps < minspeed){ps = minspeed;}
+                        printf("[%s] Small Tree Collision: %.3f\n", strts, ps);
+                    }
+
+                    lt = t + 0.3f;
+                }
+
                 if(pscale >= ns*4.0f)
                 {
                     pscale += 0.01f;
@@ -1056,7 +1078,12 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
             sp[i] = 0;
             ps += 0.06f*ss;
             pscale += ss*0.03f;
-            score += 0.06f*ss;
+            points += 0.06f*ss;
+
+            char strts[16];
+            timestamp(&strts[0]);
+            printf("[%s] Snow: %.3f, %.3f, %.3f\n", strts, points, pscale, ps);
+
             continue;
         }
 
@@ -1077,7 +1104,12 @@ shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
             gp[i] = 0;
             ps += 0.12f*ss;
             pscale += ss*0.12f;
-            score += 0.12f*ss;
+            points += 0.12f*ss;
+
+            char strts[16];
+            timestamp(&strts[0]);
+            printf("[%s] Gold: %.3f, %.3f, %.3f\n", strts, points, pscale, ps);
+
             continue;
         }
 
@@ -1358,26 +1390,31 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     switch(key)
     {
-        // case GLFW_KEY_SPACE:
-        // {
-        //     // char title[256];
-        //     // sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
-        //     // glfwSetWindowTitle(window, title);
-        //     // pscale += 1.f;
-        //     // msca = pscale;
+        case GLFW_KEY_SPACE:
+        {
+            // char title[256];
+            // sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+            // glfwSetWindowTitle(window, title);
+            // pscale += 1.f;
+            // msca = pscale;
 
-        //     // pscale = msca;
-        //     // sround = 0;
+            // pscale = msca;
+            // sround = 0;
 
-        //     // static uint nb = 1;
-        //     // setBorderMode(nb);
-        //     // nb = 1 - nb;
+            // static uint nb = 1;
+            // setBorderMode(nb);
+            // nb = 1 - nb;
 
-        //     resetGame(2);
-        //     sround = 0;
-        //     printf("%f, %f, %f\n", pr, pg, pb);
-        // }
-        // break;
+            // resetGame(2);
+            // sround = 0;
+            // printf("%f, %f, %f\n", pr, pg, pb);
+
+            resetGame(2);
+            pscale = 2.0f;
+            ps = 1.f;
+            sround = 0;
+        }
+        break;
 
         case GLFW_KEY_ESCAPE:
         {
@@ -1749,10 +1786,13 @@ int main(int argc, char** argv)
         fc++;
         if(t > lt)
         {
+            static double lp = 0;
             char strts[16];
             timestamp(&strts[0]);
             printf("[%s] FPS: %f\n", strts, fc/16);
+            printf("[%s] PPS: %f\n", strts, (points-lp)/16);
             fc = 0;
+            lp = points;
             lt = t + 16;
         }
     }
@@ -1760,7 +1800,7 @@ int main(int argc, char** argv)
     // final score
     char strts[16];
     timestamp(&strts[0]);
-    printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+    printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, points, ((double)(t-start))/60.0, (points / sqrt(t-start))*100);
 
     // done
     glfwDestroyWindow(window);
