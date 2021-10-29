@@ -1390,31 +1390,31 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     switch(key)
     {
-        case GLFW_KEY_SPACE:
-        {
-            // char title[256];
-            // sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
-            // glfwSetWindowTitle(window, title);
-            // pscale += 1.f;
-            // msca = pscale;
+        // case GLFW_KEY_SPACE:
+        // {
+        //     // char title[256];
+        //     // sprintf(title, "Level %d - Points %.2f - Time %.2f mins - Score %.2f", level, score, ((double)(t-start))/60.0, (score / sqrt(t-start))*100);
+        //     // glfwSetWindowTitle(window, title);
+        //     // pscale += 1.f;
+        //     // msca = pscale;
 
-            // pscale = msca;
-            // sround = 0;
+        //     // pscale = msca;
+        //     // sround = 0;
 
-            // static uint nb = 1;
-            // setBorderMode(nb);
-            // nb = 1 - nb;
+        //     // static uint nb = 1;
+        //     // setBorderMode(nb);
+        //     // nb = 1 - nb;
 
-            // resetGame(2);
-            // sround = 0;
-            // printf("%f, %f, %f\n", pr, pg, pb);
+        //     // resetGame(2);
+        //     // sround = 0;
+        //     // printf("%f, %f, %f\n", pr, pg, pb);
 
-            resetGame(2);
-            pscale = 2.0f;
-            ps = 1.f;
-            sround = 0;
-        }
-        break;
+        //     resetGame(2);
+        //     pscale = 2.0f;
+        //     ps = 1.f;
+        //     sround = 0;
+        // }
+        // break;
 
         case GLFW_KEY_ESCAPE:
         {
