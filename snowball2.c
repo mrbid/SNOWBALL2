@@ -1045,7 +1045,7 @@ shadeLambert3(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
                         printf("[%s] Small Tree Collision: %.3f\n", strts, ps);
                     }
 
-                    lt = t + 0.3f;
+                    lt = t + 0.3;
                 }
 
                 if(pscale >= ns*4.0f)
