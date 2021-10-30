@@ -43,6 +43,19 @@ https://snapcraft.io/snowball
 
 ---
 
+### App Image
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball-x86_64.AppImage
+
+---
+
+### Prerequisites
+`sudo apt install libglfw3 libglfw3-dev upx-ucl`
+
+### Linux Binary (Ubuntu 21.10)
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
+
+---
+
 ### Compile & Install
 ```
 gcc main.c -Ofast -lSDL2 -lGLESv2 -lEGL -lm -o snowball
@@ -108,12 +121,6 @@ The shader program... Well this time I am going to make one shader program which
 
 For anyone confused by that terminology ([ref](https://www.merriam-webster.com/words-at-play/intra-and-inter-usage)):<br>
 `The prefix intra- means "within" (as in happening within a single thing), while the prefix inter- means "between" (as in happening between two things).`
-
-## Prerequisites
-`sudo apt install libglfw3 libglfw3-dev upx-ucl`
-
-## Linux Binary
-https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 
 ---
 
