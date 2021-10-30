@@ -43,7 +43,7 @@ https://snapcraft.io/snowball
 
 ---
 
-### App Image
+### AppImage
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball-x86_64.AppImage
 
 ---
