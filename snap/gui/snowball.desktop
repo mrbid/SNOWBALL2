@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Snowball
+Comment=A novel speed run game akin to a platform loop/buzz wire game.
+StartupNotify=false
+Exec=snowball
+Icon=${SNAP}/meta/gui/snowball.png
+Terminal=true
+Type=Application
+Categories=Application;Game;ArcadeGame;
