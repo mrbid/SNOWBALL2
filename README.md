@@ -48,11 +48,13 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball-x86_64.AppImage
 
 ---
 
-### Prerequisites
-`sudo apt install libglfw3 libglfw3-dev upx-ucl`
-
 ### Linux Binary (Ubuntu 21.10)
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
+
+---
+
+### Prerequisites
+`sudo apt install libglfw3 libglfw3-dev upx-ucl`
 
 ---
 
