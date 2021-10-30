@@ -124,7 +124,7 @@ The shader program... Well this time I am going to make one shader program which
 For anyone confused by that terminology ([ref](https://www.merriam-webster.com/words-at-play/intra-and-inter-usage)):<br>
 `The prefix intra- means "within" (as in happening within a single thing), while the prefix inter- means "between" (as in happening between two things).`
 
----
+## Footnotes
 
 ### Lore
 
