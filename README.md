@@ -60,7 +60,7 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 
 ### Compile & Install
 ```
-gcc main.c -Ofast -lSDL2 -lGLESv2 -lEGL -lm -o snowball
+gcc snowball2.c glad_gl.c -Ofast -lglfw -lm -o snowball
 sudo cp snowball /usr/bin/snowball
 ```
 
