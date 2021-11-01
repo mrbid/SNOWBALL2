@@ -3,9 +3,9 @@ The GLFW version of Snowball.mobi with MSAA. A novel speed run game akin to a pl
 
 ### How to play
 
-You have to roll around collecting snow and avoiding trees until your snowball is large enough to continue to the next level.
+You have to roll around collecting snow and avoiding trees until your snowball is large enough to continue to the next level. The snowball turns pine green and begins to softly flash like a beacon to identify when it has become large enough to continue to the next level.
 
-Once you have accumulated a large enough snowball, the poles _(obelisks)_ will turn into teleportation pads to the next round; the aim is to complete each level or a sequence of levels with the highest score in the shortest time.
+Once the snowball is large enough, the poles _(obelisks)_ will turn into teleportation pads to the next round; the aim is to complete each level or a sequence of levels with the highest score in the shortest time.
 
 The larger the snowballs you collect higher the score. Gold snow is double the reward of white. **Picking up snow increases your speed temporarily; the idea is to enter a flow of collecting snow so that your speed stays up.**
 
