@@ -34,7 +34,7 @@ Any other key = Toggle Menu
 ---
 
 ### Video
-https://youtu.be/oOmu1vtLsik *(old video, no msaa)*
+https://youtu.be/sKOROqzYqck
 
 ---
 
