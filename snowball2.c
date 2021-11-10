@@ -1781,6 +1781,7 @@ int main(int argc, char** argv)
 
     // event loop
     double lt = glfwGetTime() + 16, fc = 0;
+    double tp = 0, tpc = 0;
     while(!glfwWindowShouldClose(window))
     {
         t = glfwGetTime();
@@ -1795,7 +1796,10 @@ int main(int argc, char** argv)
             char strts[16];
             timestamp(&strts[0]);
             printf("[%s] FPS: %f\n", strts, fc/16);
-            printf("[%s] PPS: %f\n", strts, (points-lp)/16);
+            const double pps = (points-lp)/16;
+            printf("[%s] PPS: %f\n", strts, pps);
+            tp += pps;
+            tpc += 1;
             fc = 0;
             lp = points;
             lt = t + 16;
@@ -1805,7 +1809,7 @@ int main(int argc, char** argv)
     // final score
     char strts[16];
     timestamp(&strts[0]);
-    printf("[%s] Level %d - Points %f - Time %f mins - Score %f\n", strts, level, points, ((double)(t-start))/60.0, (points / sqrt(t-start))*100);
+    printf("[%s] Level %d - Points %f - Time %f mins - Score %f - Avg PPS %f\n", strts, level, points, ((double)(t-start))/60.0, (points / sqrt(t-start))*100, tp / tpc);
 
     // done
     glfwDestroyWindow(window);
