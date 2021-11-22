@@ -54,7 +54,7 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 ---
 
 ### Windows Binary
-https://github.com/mrbid/SNOWBALL2/raw/main/snowball2.exe
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball2.exe <br>
 https://github.com/mrbid/SNOWBALL2/raw/main/glfw3.dll
 
 ---
