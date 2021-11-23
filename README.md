@@ -60,7 +60,7 @@ https://github.com/mrbid/SNOWBALL2/raw/main/glfw3.dll
 ---
 
 ### Prerequisites
-`sudo apt install libglfw3 libglfw3-dev upx-ucl`
+`sudo apt install libglfw3 libglfw3-dev upx-ucl gcc-mingw-w64-i686-win32`
 
 ---
 
