@@ -1667,7 +1667,7 @@ int main(int argc, char** argv)
         exit(EXIT_FAILURE);
     }
     const GLFWvidmode* desktop = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    glfwSetWindowPos(window, ((desktop->width-sx)/2)-(winw/2), ((desktop->height-sy)/2)-(winh/2)); // center window on desktop
+    glfwSetWindowPos(window, (desktop->width/2)-(winw/2), (desktop->height/2)-(winh/2)); // center window on desktop
     setBaseSensitivity(); // important
     if(noborder == 1)
     {
@@ -1780,7 +1780,7 @@ int main(int argc, char** argv)
     resetGame(0);
 
     // event loop
-    double lt = glfwGetTime() + 16, fc = 0;
+    double lt = t + 16, fc = 0;
     double tp = 0, tpc = 0;
     while(!glfwWindowShouldClose(window))
     {
