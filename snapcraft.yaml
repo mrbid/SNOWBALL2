@@ -31,6 +31,14 @@ apps:
   snowball:
     extensions: [gnome-3-38]
     command: snowball
+    plugs:
+    - desktop
+    - desktop-legacy
+    - gsettings
+    - opengl
+    - wayland
+    - x11
+    - joystick
 
 parts:
   snowball:
