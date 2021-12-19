@@ -48,7 +48,7 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball-x86_64.AppImage
 
 ---
 
-### Linux Binary (Ubuntu 21.10)
+### [x86_64] Linux Binary (Ubuntu 21.10)
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 
 ---
