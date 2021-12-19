@@ -1671,11 +1671,13 @@ int main(int argc, char** argv)
     const GLFWvidmode* desktop = glfwGetVideoMode(glfwGetPrimaryMonitor());
     glfwSetWindowPos(window, (desktop->width/2)-(winw/2), (desktop->height/2)-(winh/2)); // center window on desktop
     setBaseSensitivity(); // important
+#ifndef __arm__
     if(noborder == 1)
     {
         glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
         zoom = -28.0f;
     }
+#endif
     glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
