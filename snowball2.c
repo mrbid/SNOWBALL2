@@ -1656,10 +1656,12 @@ int main(int argc, char** argv)
     if(!glfwInit()){exit(EXIT_FAILURE);}
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#ifndef __arm__
     if(noborder == 1)
         glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, 1);
     else
         glfwWindowHint(GLFW_SAMPLES, msaa);
+#endif
     window = glfwCreateWindow(winw, winh, "Snowball.mobi", NULL, NULL);
     if(!window)
     {
