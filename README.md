@@ -53,6 +53,11 @@ https://github.com/mrbid/SNOWBALL2/raw/main/snowball2
 
 ---
 
+### [ARM64] Linux Binary (Raspbian 10)
+https://github.com/mrbid/SNOWBALL2/raw/main/snowball2_arm
+
+---
+
 ### Windows Binary
 https://github.com/mrbid/SNOWBALL2/raw/main/snowball2.exe <br>
 https://github.com/mrbid/SNOWBALL2/raw/main/glfw3.dll
