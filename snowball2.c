@@ -29,7 +29,9 @@
 #define GLFW_INCLUDE_NONE
 #include "glfw3.h"
 
-#define NOSSE
+#ifndef __x86_64__ 
+    #define NOSSE
+#endif
 #define SEIR_RAND
 #include "esAux2.h"
 
