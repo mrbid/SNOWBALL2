@@ -824,7 +824,7 @@ void main_loop()
 // time delta for interpolation
 //*************************************
     static double lt = 0;
-    double deltaTime = (t-lt)*15.0;
+    const f32 deltaTime = (t-lt)*15.0;
     //printf("%f\n", deltaTime);
     // if(deltaTime > 1.0)
     //     deltaTime = 1.0;
