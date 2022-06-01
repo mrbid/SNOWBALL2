@@ -1737,25 +1737,25 @@ int main(int argc, char** argv)
     esBind(GL_ARRAY_BUFFER, &mdlTree.cid, tree_colors, sizeof(tree_colors), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlTree_iced, tree_iced_colors, sizeof(tree_iced_colors), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlTree.nid, tree_normals, sizeof(tree_normals), GL_STATIC_DRAW);
-    esBind(GL_ARRAY_BUFFER, &mdlTree.iid, tree_indices, sizeof(tree_indices), GL_STATIC_DRAW);
+    esBind(GL_ELEMENT_ARRAY_BUFFER, &mdlTree.iid, tree_indices, sizeof(tree_indices), GL_STATIC_DRAW);
 
     // ***** BIND POLE / OBELISK *****
     esBind(GL_ARRAY_BUFFER, &mdlTele.vid, tele_vertices, sizeof(tele_vertices), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlTele.nid, tele_normals, sizeof(tele_normals), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlTele.cid, tele_colors, sizeof(tele_colors), GL_STATIC_DRAW);
-    esBind(GL_ARRAY_BUFFER, &mdlTele.iid, tele_indices, sizeof(tele_indices), GL_STATIC_DRAW);
+    esBind(GL_ELEMENT_ARRAY_BUFFER, &mdlTele.iid, tele_indices, sizeof(tele_indices), GL_STATIC_DRAW);
 
     // ***** BIND TELE *****
     esBind(GL_ARRAY_BUFFER, &mdlCat.vid, cat_vertices, sizeof(cat_vertices), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlCat.nid, cat_normals, sizeof(cat_normals), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlCat_aura, cat_aura_colors, sizeof(cat_aura_colors), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlCat.cid, cat_colors, sizeof(cat_colors), GL_STATIC_DRAW);
-    esBind(GL_ARRAY_BUFFER, &mdlCat.iid, cat_indices, sizeof(cat_indices), GL_STATIC_DRAW);
+    esBind(GL_ELEMENT_ARRAY_BUFFER, &mdlCat.iid, cat_indices, sizeof(cat_indices), GL_STATIC_DRAW);
 
     // ***** BIND SPHERE *****
     esBind(GL_ARRAY_BUFFER, &mdlSphere.vid, icosmooth2_vertices, sizeof(icosmooth2_vertices), GL_STATIC_DRAW);
     esBind(GL_ARRAY_BUFFER, &mdlSphere.nid, icosmooth2_normals, sizeof(icosmooth2_normals), GL_STATIC_DRAW);
-    esBind(GL_ARRAY_BUFFER, &mdlSphere.iid, icosmooth2_indices, sizeof(icosmooth2_indices), GL_STATIC_DRAW);
+    esBind(GL_ELEMENT_ARRAY_BUFFER, &mdlSphere.iid, icosmooth2_indices, sizeof(icosmooth2_indices), GL_STATIC_DRAW);
 
 //*************************************
 // compile & link shader program
