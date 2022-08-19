@@ -1,5 +1,5 @@
 /*
-    James William Fletcher (james@voxdsp.com)
+    James William Fletcher (github.com/mrbid)
         June 2020 - October 2021
 
     It's all to the GLES 2.0 spec for portability.
