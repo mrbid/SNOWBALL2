@@ -167,8 +167,8 @@ void timestamp(char* ts)
 
 uint qRand(const uint min, const uint max)
 {
-    static float rndmax = (float)RAND_MAX;
-    return ((((float)rand())+1e-7f) / rndmax) * ((max+1)-min) + min;
+    static float rndmax = 1.f/(float)RAND_MAX;
+    return (((float)rand()) * rndmax) * (max-min) + min;
 }
 
 uint qRandSeed(const uint seed, const uint min, const uint max)
@@ -179,8 +179,8 @@ uint qRandSeed(const uint seed, const uint min, const uint max)
 
 float qRandFloat(const float min, const float max)
 {
-    static const float rmax = (float)RAND_MAX;
-    return (((((float)rand())+1e-7f) / rmax) * (max-min)) + min;
+    static float rndmax = 1.f/(float)RAND_MAX;
+    return ( (((float)rand()) * rndmax) * (max-min) ) + min;
 }
 
 float qRandFloatSeed(const uint seed, const float min, const float max)
