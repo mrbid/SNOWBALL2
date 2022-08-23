@@ -208,9 +208,9 @@ void resetGame(char sf)
 
     for(int i = 0; i < max_tree; i++)
     {
-        uint ni = qRand(0, icogrid_numvert-3)*3;
+        uint ni = qRand(0, icogrid_numvert-2)*3;
         while(ni == 330 || ni == 132)
-            ni = qRand(0, icogrid_numvert-3)*3;
+            ni = qRand(0, icogrid_numvert-2)*3;
 
         uint ex = 0;
         for(int j = 0; j < max_tree; j++)
@@ -229,7 +229,7 @@ void resetGame(char sf)
 
     for(int i = 0; i < max_snow; i++)
     {
-        const uint ni = qRand(0, icogrid_numvert-3)*3;
+        const uint ni = qRand(0, icogrid_numvert-2)*3;
         uint ex = 0;
         for(int j = 0; j < max_snow; j++)
         {
@@ -245,7 +245,7 @@ void resetGame(char sf)
 
     for(int i = 0; i < max_gold; i++)
     {
-        const uint ni = qRand(0, icogrid_numvert-3)*3;
+        const uint ni = qRand(0, icogrid_numvert-2)*3;
         uint ex = 0;
         for(int j = 0; j < max_gold; j++)
         {
