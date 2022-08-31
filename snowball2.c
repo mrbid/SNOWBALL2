@@ -1623,7 +1623,7 @@ int main(int argc, char** argv)
     if(argc >= 10){ss2 = atof(argv[9]);}
 
     // help
-    printf("Snowball by James William Fletcher (james@voxdsp.com)\n");
+    printf("Snowball by James William Fletcher (github.com/mrbid)\n");
     printf("A novel speed run game akin to a platform loop/buzz wire game.\n\n");
     printf("CONTROLS:\n");
     printf("Mouse 1 (Left)  = Toggle Control\n");
