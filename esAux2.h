@@ -10,6 +10,7 @@
 
     v2.0:
         - added support for fullbright texture mapping
+        - added esRebind()
 
     v1.0:
         The shaders are the product of a little help from:
@@ -52,6 +53,7 @@ typedef struct
 GLuint esRand(const GLuint min, const GLuint max);
 GLfloat esRandFloat(const GLfloat min, const GLfloat max);
 void esBind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage);
+void esRebind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage);
 void esBindModel(ESModel* model, const GLfloat* vertices, const GLsizei vertlen, const GLushort* indices, const GLsizei indlen);
 GLuint esLoadTexture(const GLuint w, const GLuint h, const unsigned char* data);
 GLuint esLoadTextureA(const GLuint w, const GLuint h, const unsigned char* data);
@@ -91,19 +93,24 @@ void shadePhong3(GLint* position, GLint* projection, GLint* modelview, GLint* no
 
 GLuint esRand(const GLuint min, const GLuint max)
 {
-    static GLfloat rndmax = 1.f/(GLfloat)RAND_MAX;
-    return (((GLfloat)rand()) * rndmax) * (max-min) + min;
+    return (rand()%(max+1-min))+min;
 }
 
 GLfloat esRandFloat(const GLfloat min, const GLfloat max)
 {
-    static GLfloat rndmax = 1.f/(GLfloat)RAND_MAX;
-    return ( (((GLfloat)rand()) * rndmax) * (max-min) ) + min;
+    static GLfloat rrndmax = 1.f/(GLfloat)RAND_MAX;
+    return ( (((GLfloat)rand()) * rrndmax) * (max-min) ) + min;
 }
 
 void esBind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage)
 {
     glGenBuffers(1, buffer);
+    glBindBuffer(target, *buffer);
+    glBufferData(target, datalen, data, usage);
+}
+
+void esRebind(const GLenum target, GLuint* buffer, const void* data, const GLsizeiptr datalen, const GLenum usage)
+{
     glBindBuffer(target, *buffer);
     glBufferData(target, datalen, data, usage);
 }
@@ -316,9 +323,11 @@ const GLchar* f1 =
     "varying vec3 vertCol;\n"
     "varying float vertOpa;\n"
     "varying vec3 vlightPos;\n"
+    //"float rand(vec2 co){return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);}\n"
     "void main()\n"
     "{\n"
-        "vec3 ambientColor = vertCol * 0.1;\n"
+        //"vec3 ambientColor = vertCol * 0.148*sin(vertNorm);\n" // lol
+        "vec3 ambientColor = vertCol * 0.148;\n"
         "vec3 diffuseColor = vertCol;\n"
         "vec3 normal = normalize(vertNorm);\n"
         "vec3 lightDir = normalize(vlightPos - vertPos);\n"
@@ -342,13 +351,13 @@ const GLchar* v2 =
     "varying vec3 vlightPos;\n"
     "void main()\n"
     "{\n"
-        "vec4 vertPos4 = modelview * position;"
-        "vertPos = vec3(vertPos4) / vertPos4.w;"
+        "vec4 vertPos4 = modelview * position;\n"
+        "vertPos = vec3(vertPos4) / vertPos4.w;\n"
         "vertCol = color;\n"
         "vertOpa = opacity;\n"
         "vlightPos = lightpos;\n"
-        "normalInterp = vec3(normalmat * vec4(position.xyz, 0.0));"
-        "gl_Position = projection * modelview * position;"
+        "normalInterp = vec3(normalmat * vec4(position.xyz, 0.0));\n"
+        "gl_Position = projection * modelview * position;\n"
     "}\n";
 
 const GLchar* v21 = 
@@ -368,13 +377,13 @@ const GLchar* v21 =
     "varying vec3 vlightPos;\n"
     "void main()\n"
     "{\n"
-        "vec4 vertPos4 = modelview * position;"
-        "vertPos = vec3(vertPos4) / vertPos4.w;"
+        "vec4 vertPos4 = modelview * position;\n"
+        "vertPos = vec3(vertPos4) / vertPos4.w;\n"
         "vertCol = color;\n"
         "vertOpa = opacity;\n"
         "vlightPos = lightpos;\n"
-        "normalInterp = vec3(normalmat * vec4(normal.xyz, 0.0));"
-        "gl_Position = projection * modelview * position;"
+        "normalInterp = vec3(normalmat * vec4(normal.xyz, 0.0));\n"
+        "gl_Position = projection * modelview * position;\n"
     "}\n";
 
 const GLchar* v22 = 
@@ -393,13 +402,13 @@ const GLchar* v22 =
     "varying vec3 vlightPos;\n"
     "void main()\n"
     "{\n"
-        "vec4 vertPos4 = modelview * position;"
-        "vertPos = vec3(vertPos4) / vertPos4.w;"
+        "vec4 vertPos4 = modelview * position;\n"
+        "vertPos = vec3(vertPos4) / vertPos4.w;\n"
         "vertCol = color;\n"
         "vertOpa = opacity;\n"
         "vlightPos = lightpos;\n"
-        "normalInterp = vec3(normalmat * vec4(position.xyz, 0.0));"
-        "gl_Position = projection * modelview * position;"
+        "normalInterp = vec3(normalmat * vec4(position.xyz, 0.0));\n"
+        "gl_Position = projection * modelview * position;\n"
     "}\n";
 
 const GLchar* v23 = 
@@ -419,13 +428,13 @@ const GLchar* v23 =
     "varying vec3 vlightPos;\n"
     "void main()\n"
     "{\n"
-        "vec4 vertPos4 = modelview * position;"
-        "vertPos = vec3(vertPos4) / vertPos4.w;"
+        "vec4 vertPos4 = modelview * position;\n"
+        "vertPos = vec3(vertPos4) / vertPos4.w;\n"
         "vertCol = color;\n"
         "vertOpa = opacity;\n"
         "vlightPos = lightpos;\n"
-        "normalInterp = vec3(normalmat * vec4(normal.xyz, 0.0));"
-        "gl_Position = projection * modelview * position;"
+        "normalInterp = vec3(normalmat * vec4(normal.xyz, 0.0));\n"
+        "gl_Position = projection * modelview * position;\n"
     "}\n";
    
 const GLchar* f2 = 
@@ -438,7 +447,7 @@ const GLchar* f2 =
     "varying vec3 vlightPos;\n"
     "void main()\n"
     "{\n"
-        "vec3 ambientColor = vertCol * 0.1;\n"
+        "vec3 ambientColor = vertCol * 0.14;\n"
         "vec3 diffuseColor = vertCol;\n"
         "vec3 specColor = vec3(1.0, 1.0, 1.0);\n"
         "float specAmount = 4.0;\n"

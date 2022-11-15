@@ -342,7 +342,6 @@ void resetGame(char sf)
 //*************************************
 void rGrid()
 {
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &view.m[0][0]);
     glUniform3f(color_id, 1.0f, 1.0f, 1.0f);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
@@ -370,7 +369,6 @@ void rTree(const uint pos, const GLfloat scale, const char iced)
 
     mMul(&modelview, &model, &view);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
     glUniform1f(opacity_id, 1.0f);
@@ -432,7 +430,6 @@ void rSphere(const uint pos, const GLfloat scale, const GLfloat r, const GLfloat
 
     mMul(&modelview, &model, &view);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
     glUniform3f(color_id, r, g, b);
@@ -470,7 +467,6 @@ void rPole(const uint pos, const GLfloat scale, const GLfloat yaw, const char au
 
     mMul(&modelview, &model, &view);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
     glUniform1f(opacity_id, 1.0);
@@ -520,7 +516,6 @@ void rTele(const uint pos, const GLfloat scale, const GLfloat yaw)
 
     mMul(&modelview, &model, &view);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
     glUniform1f(opacity_id, 1.0f);
@@ -592,7 +587,6 @@ void rPlayer(const GLfloat dt, vec ndir, const vec nup, const GLfloat scale)
 
     mMul(&modelview, &model, &view);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(lightpos_id, lightpos.x, lightpos.y, lightpos.z);
 
@@ -670,7 +664,6 @@ void rSad(const GLfloat dt)
         sfs = 1.0f;
     }
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(color_id, 0.7f, 0.1f, 0.0f);
     glUniform1f(opacity_id, 1.0f);
@@ -698,7 +691,6 @@ void rIntro(const GLfloat opacity)
 
     glEnable(GL_BLEND);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(color_id, 0.f, 0.f, 0.f);
     glUniform1f(opacity_id, opacity*0.5f);
@@ -719,7 +711,6 @@ void rIntro(const GLfloat opacity)
         ns = 0.133f;
     mScale(&modelview, ns, ns, ns);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(color_id, 0.53f, 0.80f, 0.92f);
     glUniform1f(opacity_id, opacity);
@@ -740,7 +731,6 @@ void rHeart(const GLfloat opacity)
     mTranslate(&modelview, 0.f, 0.f, -1.01f);
     mScale(&modelview, 4.2f, 4.2f, 4.2f);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(color_id, 0.67059f, 0.12157f, 0.12157f);
     glUniform1f(opacity_id, opacity);
@@ -761,7 +751,6 @@ void rMenuHighlight(const GLfloat x, const GLfloat y)
     mTranslate(&modelview, x, y, -1.730f);
     mScale(&modelview, uw*28.f, uh*28.f, 0);
 
-    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     glUniformMatrix4fv(modelview_id, 1, GL_FALSE, (GLfloat*) &modelview.m[0][0]);
     glUniform3f(color_id, 0.39608f, 0.70196f, 0.07059f);
     glUniform1f(opacity_id, 1.0f);
@@ -777,6 +766,7 @@ void rMenuHighlight(const GLfloat x, const GLfloat y)
 void rMenuMouse(const GLfloat x, const GLfloat y)
 {
     shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
 
     mIdent(&modelview);
     mTranslate(&modelview, x, y, -1.730f);
@@ -988,9 +978,11 @@ void main_loop()
 glEnable(GL_DEPTH_TEST);
 // --
 shadeLambert(&position_id, &projection_id, &modelview_id, &lightpos_id, &color_id, &opacity_id);
+glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     rGrid();
 // --
 shadeLambert3(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal_id, &color_id, &opacity_id);
+glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
 
     // poles
     if(pscale >= msca)
@@ -1073,6 +1065,7 @@ shadeLambert3(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal
     }
 // --
 shadeLambert1(&position_id, &projection_id, &modelview_id, &lightpos_id, &normal_id, &color_id, &opacity_id);
+glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     for(int i = 0; i < max_snow; i++)
     {
         if(sp[i] == 0)
@@ -1140,16 +1133,19 @@ glDisable(GL_DEPTH_TEST);
 if(sfs != 0)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     rSad(deltaTime);
 }
 else if(t < inrot)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     rIntro((inrot-t)*0.3);
 }
 else if(t < hrt)
 {
     shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
+    glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
     rHeart((hrt-t)*0.3);
 }
 
@@ -1164,6 +1160,7 @@ else if(t < hrt)
         // DRAW MENU BG
 
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+        glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
 
         mIdent(&modelview);
         mTranslate(&modelview, 0.f, 0.f, -1.730f);
@@ -1190,6 +1187,7 @@ else if(t < hrt)
         // DRAW SEED SELECTOR
         
         shadeFullbright(&position_id, &projection_id, &modelview_id, &color_id, &opacity_id);
+        glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
 
         double rx = uw2*(x-ww2);
         double ry = uh2*-(y-wh2);
@@ -1230,6 +1228,7 @@ else if(t < hrt)
         // DRAW SENSITIVITY SLIDERS
 
         shadeFullbrightT(&position_id, &projection_id, &modelview_id, &texcoord_id, &sampler_id);
+        glUniformMatrix4fv(projection_id, 1, GL_FALSE, (GLfloat*) &projection.m[0][0]);
         //rMenuMouse(uw2*-162, uw2*80);
         //printf("%.3f %.3f\n", rx, ry);
 
