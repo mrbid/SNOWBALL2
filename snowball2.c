@@ -294,7 +294,6 @@ void resetGame(char sf)
 
         char strts[16];
         timestamp(&strts[0]);
-        if(ps < minspeed){ps = minspeed;}
         printf("[%s] Snowball Destroyed. Game over.\n", strts);
     }
     else if(sf == 0)
