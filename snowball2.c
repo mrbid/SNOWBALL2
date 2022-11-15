@@ -1531,50 +1531,50 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             }
         }
     }
-
-    if(button == GLFW_MOUSE_BUTTON_4 && action == GLFW_PRESS && show_ui == 0)
+    else if(action == GLFW_PRESS && show_ui == 0)
     {
-        sens_mul -= 0.1f;
-        setBaseSensitivity();
-        char strts[16];
-        timestamp(&strts[0]);
-        printf("[%s] Sens: %.3f\n", strts, sens_mul);
-    }
-    
-    if(button == GLFW_MOUSE_BUTTON_5 && action == GLFW_PRESS && show_ui == 0)
-    {
-        sens_mul += 0.1f;
-        setBaseSensitivity();
-        char strts[16];
-        timestamp(&strts[0]);
-        printf("[%s] Sens: %.3f\n", strts, sens_mul);
-    }
-
-    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS && show_ui == 0)
-    {
-        if(zoom == -20.0f)
+        if(button == GLFW_MOUSE_BUTTON_4)
         {
-            zoom = -16.0f;
+            sens_mul -= 0.1f;
             setBaseSensitivity();
-            sport = 0;
+            char strts[16];
+            timestamp(&strts[0]);
+            printf("[%s] Sens: %.3f\n", strts, sens_mul);
         }
-        else if(zoom == -16.0f)
+        else if(button == GLFW_MOUSE_BUTTON_5)
         {
-            zoom = -26.0f;
+            sens_mul += 0.1f;
             setBaseSensitivity();
-            sport = 0;
+            char strts[16];
+            timestamp(&strts[0]);
+            printf("[%s] Sens: %.3f\n", strts, sens_mul);
         }
-        else if(zoom == -26.0f)
+        else if(button == GLFW_MOUSE_BUTTON_RIGHT)
         {
-            zoom = -27.0f;
-            setBaseSensitivity();
-            sport = 1;
-        }
-        else if(zoom == -27.0)
-        {
-            zoom = -20.0f;
-            setBaseSensitivity();
-            sport = 0;
+            if(zoom == -20.0f)
+            {
+                zoom = -16.0f;
+                setBaseSensitivity();
+                sport = 0;
+            }
+            else if(zoom == -16.0f)
+            {
+                zoom = -26.0f;
+                setBaseSensitivity();
+                sport = 0;
+            }
+            else if(zoom == -26.0f)
+            {
+                zoom = -27.0f;
+                setBaseSensitivity();
+                sport = 1;
+            }
+            else if(zoom == -27.0)
+            {
+                zoom = -20.0f;
+                setBaseSensitivity();
+                sport = 0;
+            }
         }
     }
 }
