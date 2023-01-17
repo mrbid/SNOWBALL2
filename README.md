@@ -92,7 +92,6 @@ GLFW 16x MSAA | SDL2 GLES NO MSAA
 Launching as `./snowball2 1337 0 1 1024 1024 0.3 1 1.0 1.5` is pretty cool. ([video](https://youtu.be/n424i-7_4Zw))
 
 ## ADDED
-- MSAA
 - Joystick Support
 - Dual Joystick Support
 - Window/Borderless mode
