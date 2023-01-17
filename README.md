@@ -95,8 +95,6 @@ GLFW 16x MSAA | SDL2 GLES NO MSAA
 :-------------------------:|:-------------------------:
 ![snowball screen capture 16x msaa](https://github.com/mrbid/SNOWBALL2/blob/main/screenshot.png?raw=true) | ![snowball screen capture no msaa](https://dashboard.snapcraft.io/site_media/appmedia/2021/09/Screenshot_2021-09-26_11-15-10.png)
 
-The original Snowball.mobi never had MSAA because it was designed to be a OpenGL ES / WebGL game and MSAA is not technically supported, or a great idea to be used on low-end devices. The idea of porting Snowball to GLFW is to take advantage of all the features OpenGL has to offer.
-
 Launching as `./snowball2 1337 0 1 1024 1024 0.3 1 1.0 1.5` is pretty cool. ([video](https://youtu.be/n424i-7_4Zw))
 
 ## ADDED
