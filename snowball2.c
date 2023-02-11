@@ -824,11 +824,17 @@ void main_loop()
 //*************************************
     if(show_ui == 0)
     {
+        double xd=0, yd=0;
         if(md == 1)
+        {
             glfwGetCursorPos(window, &x, &y);
-
-        double xd = (sx-x);
-        double yd = (sy-y);
+            if(x != sx || y != sy)
+            {
+                xd = (sx-x);
+                yd = (sy-y);
+                glfwSetCursorPos(window, sx, sy);
+            }
+        }
         //printf("%f %f | %f %f | %f %f\n", x, y, sx, sy, xd, yd);
 
         if(glfwJoystickPresent(GLFW_JOYSTICK_1) == 1)
@@ -928,9 +934,6 @@ void main_loop()
             yrot = 180.0f;
         if(yrot < -0.0f)
             yrot = -0.0f;
-        
-        if(md == 1)
-            glfwSetCursorPos(window, sx, sy);
     }
 
 //*************************************
