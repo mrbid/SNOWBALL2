@@ -1,4 +1,6 @@
 # SNOWBALL2
+This has been superceeded by the latest version at: https://notabug.org/Vandarin/Snowball
+
 The GLFW version of [Snowball.mobi](https://snowball.mobi) with MSAA. A novel speed run game akin to a platform loop/buzz wire game.
 
 ### How to play
